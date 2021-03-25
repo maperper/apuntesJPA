@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="15.1-introducción">
+              <a name="15.1-introducción" href="#15.1-introducción"></a>
+              15.1 Introducción
+            </h2>
+            <p>
+              Hasta ahora hemos útilizado algunos conceptos sobre persistencia
+              sin llegar a entrar en profundidad en conocerlos. Vamos a
+              profundizar ahora un poco en ellos.
+            </p>
+            <h2 id="15.2-unidad-de-persistencia-y-contexto-de-persistencia">
+              <a
+                name="15.2-unidad-de-persistencia-y-contexto-de-persistencia"
+                href="#15.2-unidad-de-persistencia-y-contexto-de-persistencia"
+              ></a>
+              15.2 Unidad de persistencia y contexto de persistencia
+            </h2>
+            <p>
+              Una
+              <strong>unidad de persistencia</strong>
+              representa un conjunto de entidades que pueden ser mapeadas en una
+              base de datos, así como la información necesaria para que la
+              aplicación se pueda conectar a la misma. Toda esta información
+              viene definida en un fichero llamado
+              <em>persistence.xml</em>
+              .
+            </p>
+            <p>
+              Dentro de este fichero podemos definir una o más unidades de
+              persistencia, incluyendo siempre un nombre único y una fuente de
+              datos (
+              <em>datasource</em>
+              ).
+            </p>
+            <p>
+              Un
+              <strong>contexto de persistencia</strong>
+              representa un conjunto de entidades que se encuentran gestionadas
+              <em>en un momento dado</em>
+              . Podríamos decir que es algo así como una
+              <strong><em>instancia</em></strong>
+              de una unidad de persistencia.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-repsonsive center-block"
+                =""
+                =""
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/60386876-7133-4012-9831-e1af7b666eca.JPG"
+                alt="Unidad y contexto de persistencia"
+              />
+            </p>
+            <p>
+              Tal y como vimos en apartados anteriores, una entidad gestionada
+              por un contexto de persistencia puede estar en alguno de los
+              siguientes estados:
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/454a36e0-6626-42f2-8ac9-8ec3340c4200.jpg"
+                alt="Estados de una entidad"
+              />
+            </p>
+            <p>
+              La mayoría de los métodos del gestor de entidades van dirigidos a
+              mover las entidades entre esos diferentes estados.
+            </p>
+            <h2 id="15.3-api-de-jpa-y-api-de-hibernate">
+              <a
+                name="15.3-api-de-jpa-y-api-de-hibernate"
+                href="#15.3-api-de-jpa-y-api-de-hibernate"
+              ></a>
+              15.3 API de JPA y API de Hibernate
+            </h2>
+            <p>
+              Hasta ahora hemos venido maridando el uso de JPA con Hibernate.
+              Cada uno de ellos tiene su propio
+              <em>API</em>
+              , ofreciendo de una forma diferente las mismas funcionalidades.
+            </p>
+            <p>En el siguiente diagrama de clases podemos apreciarlo:</p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/6c7f7acf-eb19-48a7-9add-d7b1f7d72c3c.JPG"
+                alt="Diagrama de clases de Hibernate"
+              />
+            </p>
+            <p>
+              Los diferentes esquemas de trabajo de JPA (a través de un
+              <em>EntityManagerFactory</em>
+              y un
+              <em>EntityManager</em>
+              ) y de Hibernate nativo (a través de un
+              <em>SessionFactory</em>
+              y un
+              <em>Session</em>
+              ) tienen en el fondo una misma implementación.
+            </p>
+            <p>
+              JPA define un mecanismo sencillo y útil para poder acceder al API
+              subyacente de Hibernate:
+            </p>
+            <pre
+              class="hljs ebnf"
+            ><code class="java"><span class="hljs-attribute">Session session</span> = entityManager.unwrap( Session.class );
+        <span class="hljs-attribute">SessionImplementor sessionImplementor</span> = entityManager.unwrap(SessionImplementor.class );
+        <span class="hljs-attribute">SessionFactory sessionFactory</span> = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class );
+        </code></pre>
+            <h2 id="15.4-gestión-de-entidades">
+              <a
+                name="15.4-gestión-de-entidades"
+                href="#15.4-gestión-de-entidades"
+              ></a>
+              15.4 Gestión de entidades
+            </h2>
+            <h3 id="15.4.1-persistencia-de-una-entidad">
+              <a
+                name="15.4.1-persistencia-de-una-entidad"
+                href="#15.4.1-persistencia-de-una-entidad"
+              ></a>
+              15.4.1 Persistencia de una entidad
+            </h3>
+            <p>
+              Al crear una nueva entidad a través del operador
+              <code>new</code>
+              , esta estaría en estado
+              <em>nuevo</em>
+              . Para hacerla persistente, tenemos que asociarla a un
+              <em>EntityManager</em>
+              .
+            </p>
+            <pre
+              class="hljs inform7"
+            ><code class="java"><span class="hljs-keyword">Person</span> <span class="hljs-keyword">person</span> = new <span class="hljs-keyword">Person</span>();
+        <span class="hljs-keyword">person</span>.setId( 1L );
+        <span class="hljs-keyword">person</span>.setName(<span class="hljs-string">"John Doe"</span>);
+        
+        entityManager.persist( <span class="hljs-keyword">person</span> );
+        </code></pre>
+            <p>
+              Si la entidad tuviera asociado un mecanismo para la generación del
+              Id, no tendríamos que asignárselo manualmente, y se generaría
+              automáticamente al persistir el objeto.
+            </p>
+            <h3 id="15.4.2-eliminación-de-una-entidad">
+              <a
+                name="15.4.2-eliminación-de-una-entidad"
+                href="#15.4.2-eliminación-de-una-entidad"
+              ></a>
+              15.4.2 Eliminación de una entidad
+            </h3>
+            <p>
+              Las entidades también pueden ser
+              <em>eliminadas</em>
+              . Para ello, tan solo tenemos que
+            </p>
+            <pre
+              class="hljs routeros"
+            ><code class="java">entityManager.<span class="hljs-builtin-name">remove</span>( person );
+        </code></pre>
+            <h3
+              id="15.4.3-obtención-de-una-referencia-a-una-entidad-sin-inicializar-sus-datos"
+            >
+              <a
+                name="15.4.3-obtención-de-una-referencia-a-una-entidad-sin-inicializar-sus-datos"
+                href="#15.4.3-obtención-de-una-referencia-a-una-entidad-sin-inicializar-sus-datos"
+              ></a>
+              15.4.3 Obtención de una referencia a una entidad sin inicializar
+              sus datos
+            </h3>
+            <p>
+              En ocasiones puede interesarnos hacer referencia a una entidad
+              manejada por el contexto de persistencia, pero sin tener que
+              cargar todos sus datos (por ejemplo, porque sean muchos o muy
+              pesados). El caso más común es para establecer una asociación con
+              otra entidad.
+            </p>
+            <p>
+              JPA nos permite hacerlo a través del método
+              <code>getReference</code>
+              :
+            </p>
+            <pre
+              class="hljs mipsasm"
+            ><code class="java"><span class="hljs-keyword">Book </span><span class="hljs-keyword">book </span>= new <span class="hljs-keyword">Book();
+        </span><span class="hljs-keyword">book.setAuthor( </span>entityManager.getReference( Person.class, personId ) )<span class="hljs-comment">;</span>
+        </code></pre>
+            <p>
+              Este código asume que se está usando la carga
+              <em>lazy</em>
+              .
+            </p>
+            <h3
+              id="15.4.4-obtención-de-una-referencia-a-una-entidad-inicializando-sus-datos"
+            >
+              <a
+                name="15.4.4-obtención-de-una-referencia-a-una-entidad-inicializando-sus-datos"
+                href="#15.4.4-obtención-de-una-referencia-a-una-entidad-inicializando-sus-datos"
+              ></a>
+              15.4.4 Obtención de una referencia a una entidad inicializando sus
+              datos
+            </h3>
+            <p>
+              Las llamadas a este método son muy comunes, por ejemplo para
+              mostrar todos los datos de una entidad en la interfaz de usuario.
+            </p>
+            <pre
+              class="hljs inform7"
+            ><code class="java"><span class="hljs-keyword">Person</span> <span class="hljs-keyword">person</span> = entityManager.find( <span class="hljs-keyword">Person</span>.class, personId );
+        </code></pre>
+            <p>
+              En caso de que la entidad exista en el contexto de persistencia,
+              nos devolvería una instancia de ella; si no existe, nos devuelve
+              <code>null</code>
+              .
+            </p>
+            <h3
+              id="15.4.5-modificación-de-una-entidad-que-ya-está-manejada/persistida"
+            >
+              <a
+                name="15.4.5-modificación-de-una-entidad-que-ya-está-manejada/persistida"
+                href="#15.4.5-modificación-de-una-entidad-que-ya-está-manejada/persistida"
+              ></a>
+              15.4.5 Modificación de una entidad que ya está manejada/persistida
+            </h3>
+            <p>
+              Los cambios sobre las entidades manejadas por JPA serán detectados
+              automáticamente, y persistidos cuando el contexto de persistencia
+              sea
+              <em>flushed</em>
+              .
+            </p>
+            <pre
+              class="hljs inform7"
+            ><code class="java"><span class="hljs-keyword">Person</span> <span class="hljs-keyword">person</span> = entityManager.find( <span class="hljs-keyword">Person</span>.class, personId );
+        <span class="hljs-keyword">person</span>.setName(<span class="hljs-string">"John Doe"</span>);
+        entityManager.flush();
+        </code></pre>
+            <h3 id="15.4.6-refresco-del-estado-de-una-entidad">
+              <a
+                name="15.4.6-refresco-del-estado-de-una-entidad"
+                href="#15.4.6-refresco-del-estado-de-una-entidad"
+              ></a>
+              15.4.6 Refresco del estado de una entidad
+            </h3>
+            <p>
+              Podemos recargar una entidad desde el contexto de persistencia en
+              cualquier momento.
+            </p>
+            <pre
+              class="hljs mipsasm"
+            ><code class="java">Person person = entityManager.find( Person.class, personId )<span class="hljs-comment">;</span>
+        
+        entityManager.createQuery( <span class="hljs-string">"update Person set name = UPPER(name)"</span> ).executeUpdate()<span class="hljs-comment">;</span>
+        
+        entityManager.refresh( person )<span class="hljs-comment">;</span>
+        assertEquals(<span class="hljs-string">"JOHN DOE"</span>, person.getName() )<span class="hljs-comment">;</span>
+        </code></pre>
+            <p>
+              Esta operación es útil en algunos casos, como por ejemplo si
+              sabemos que el estado en la base de datos ha cambiado desde que
+              leímos la entidad, o si alguno de los valores ha sido generado a
+              nivel de base de datos con un disparador o
+              <em>trigger</em>
+              .
+            </p>
+            <h3 id="15.4.7-trabajo-con-entidades-_detached_-(separadas)">
+              <a
+                name="15.4.7-trabajo-con-entidades-_detached_-(separadas)"
+                href="#15.4.7-trabajo-con-entidades-_detached_-(separadas)"
+              ></a>
+              15.4.7 Trabajo con entidades
+              <em>detached</em>
+              (separadas)
+            </h3>
+            <p>
+              Una entidad puede pasar a estado
+              <em>detached</em>
+              por varias razones:
+            </p>
+            <ul>
+              <li>Porque el contexto de persistencia se haya cerrado.</li>
+              <li>
+                Porque el contexto de persistencia se haya refrescado (
+                <code>clear</code>
+                ).
+              </li>
+              <li>
+                Llamando a los métodos adecuados, como
+                <code>detach</code>
+                (o con Hibernate nativo
+                <code>evict</code>
+                ).
+              </li>
+            </ul>
+            <p>
+              Las entidades en este estado no van a funcionar de la misma
+              manera: sus cambios no se almacenarán en la base de datos, no
+              podemos refrescarlas, etc…
+            </p>
+            <p>
+              Para volver a incluir una entidad dentro del contexto de
+              persistencia, podemos realizar una operación
+              <code>merge</code>
+              . Esta operación toma los datos de la entidad (
+              <em>detached</em>
+              ) que recibe como argumento, obteniendo como resultado una nueva
+              entidad, copia de la anterior, y que si estará manejada por el
+              contexto de persistencia:
+            </p>
+            <pre
+              class="hljs inform7"
+            ><code class="java"><span class="hljs-keyword">Person</span> <span class="hljs-keyword">person</span> = entityManager.find( <span class="hljs-keyword">Person</span>.class, personId );
+        //Al limpiar el entityManager la entidad se convierte en detached
+        entityManager.clear();
+        <span class="hljs-keyword">person</span>.setName( <span class="hljs-string">"Mr. John Doe"</span> );
+        
+        <span class="hljs-keyword">person</span> = entityManager.merge( <span class="hljs-keyword">person</span> );
+        </code></pre>
+            <h2 id="15.5-transiciones-en-cascada">
+              <a
+                name="15.5-transiciones-en-cascada"
+                href="#15.5-transiciones-en-cascada"
+              ></a>
+              15.5 Transiciones en cascada
+            </h2>
+            <p>
+              Las transiciones en cascada son una herramienta potente, que nos
+              permiten propagar un cambio de estado desde una entidad
+              <em>padre</em>
+              a otras entidades
+              <em>hijas</em>
+              relacionadas con la primera. Dentro del interfaz
+              <code>javax.persistence.CascadeType</code>
+              tenemos definidos varios tipos:
+            </p>
+            <ul>
+              <li>
+                <code>ALL</code>
+                : se propagan todos los cambios de estados.
+              </li>
+              <li>
+                <code>PERSIST</code>
+                : se propagan las operaciones de persistencia.
+              </li>
+              <li>
+                <code>MERGE</code>
+                : se propagan las operaciones
+                <code>merge</code>
+                .
+              </li>
+              <li>
+                <code>REMOVE</code>
+                : se propagan las eliminaciones.
+              </li>
+              <li>
+                <code>REFRESH</code>
+                : se propagan las actualizaciones.
+              </li>
+              <li>
+                <code>DETACH</code>
+                : se propagan las separaciones.
+              </li>
+            </ul>
+            <p>
+              Podemos ilustrar las operaciones en cascada con el siguiente
+              código:
+            </p>
+            <pre
+              class="hljs kotlin"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-meta">@OneToMany(mappedBy = <span class="hljs-meta-string">"owner"</span>, cascade = CascadeType.ALL)</span>
+            <span class="hljs-keyword">private</span> List&lt;Phone&gt; phones = new ArrayList&lt;&gt;();
+        
+            <span class="hljs-comment">//getters y setters</span>
+        
+            <span class="hljs-keyword">public</span> void addPhone(Phone phone) {
+                <span class="hljs-keyword">this</span>.phones.add( phone );
+                phone.setOwner( <span class="hljs-keyword">this</span> );
+            }
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Phone</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+        
+            <span class="hljs-meta">@Column(name = <span class="hljs-meta-string">"`number`"</span>)</span>
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-meta">@ManyToOne(fetch = FetchType.LAZY)</span>
+            <span class="hljs-keyword">private</span> Person owner;
+        
+            <span class="hljs-comment">//getters y setters</span>
+        }
+        </code></pre>
+            <p>Veamos algunas de las operaciones más comunes.</p>
+            <h3 id="15.5.1.-`persist`">
+              <a name="15.5.1.-`persist`" href="#15.5.1.-`persist`"></a>
+              15.5.1.
+              <code>PERSIST</code>
+            </h3>
+            <p>
+              Nos permite almacenar una entidad
+              <em>hija</em>
+              a través de su
+              <em>padre</em>
+              .
+            </p>
+            <pre
+              class="hljs abnf"
+            ><code class="java">Person person = new Person()<span class="hljs-comment">;</span>
+        person.setId(<span class="hljs-number">1</span>L)<span class="hljs-comment">;</span>
+        person.setName(<span class="hljs-string">"Pepe Pérez"</span>)<span class="hljs-comment">;</span>
+        
+        Phone phone = new Phone()<span class="hljs-comment">;</span>
+        phone.setId(<span class="hljs-number">1</span>L)<span class="hljs-comment">;</span>
+        phone.setNumber(<span class="hljs-string">"954000000"</span>)<span class="hljs-comment">;</span>
+        
+        person.addPhone(phone)<span class="hljs-comment">;</span>
+        
+        entityManager.persist( person )<span class="hljs-comment">;</span>
+        </code></pre>
+            <h3 id="15.5.2.-`merge`">
+              <a name="15.5.2.-`merge`" href="#15.5.2.-`merge`"></a>
+              15.5.2.
+              <code>MERGE</code>
+            </h3>
+            <p>
+              Nos permite volver a incluir dentro del contexto de persistencia
+              una entidad
+              <em>hija</em>
+              a través de su
+              <em>padre</em>
+              .
+            </p>
+            <pre
+              class="hljs mipsasm"
+            ><code class="java">Phone phone = entityManager.find( Phone.class, <span class="hljs-number">1</span>L )<span class="hljs-comment">;</span>
+        Person person = phone.getOwner()<span class="hljs-comment">;</span>
+        
+        person.setName(<span class="hljs-string">"Pepe Pérez"</span>)<span class="hljs-comment">;</span>
+        phone.setNumber(<span class="hljs-string">"954000000"</span>)<span class="hljs-comment">;</span>
+        
+        entityManager.clear()<span class="hljs-comment">;</span>
+        
+        entityManager.merge(person)<span class="hljs-comment">;</span>
+        </code></pre>
+            <h3 id="15.5.3.-`remove`">
+              <a name="15.5.3.-`remove`" href="#15.5.3.-`remove`"></a>
+              15.5.3.
+              <code>REMOVE</code>
+            </h3>
+            <p>
+              Nos permite eliminar una entidad
+              <em>hija</em>
+              a través de su
+              <em>padre</em>
+              .
+            </p>
+            <pre
+              class="hljs inform7"
+            ><code class="java"><span class="hljs-keyword">Person</span> <span class="hljs-keyword">person</span> = entityManager.find( <span class="hljs-keyword">Person</span>.class, 1L );
+        
+        entityManager.remove( <span class="hljs-keyword">person</span> );
+        </code></pre>
+            <h2 id="15.6-_fetch-plans_-(planes-de-carga-de-datos)">
+              <a
+                name="15.6-_fetch-plans_-(planes-de-carga-de-datos)"
+                href="#15.6-_fetch-plans_-(planes-de-carga-de-datos)"
+              ></a>
+              15.6
+              <em>Fetch plans</em>
+              (planes de carga de datos)
+            </h2>
+            <p>
+              Como hemos visto, JPA+Hibernate, a través del contexto de
+              persistencia, ponen a nuestra disposición los datos almacenados en
+              una base de datos. Pero, ¿es necesario que tengamos siempre todos
+              los datos de las entidades que manejamos? Podemos intervernir en
+              este proceso, indicando el tipo de
+              <em>fetching</em>
+              que queremos realizar.
+            </p>
+            <p>Tenemos a nuestar disposición dos esquema de trabajo:</p>
+            <ul>
+              <li>
+                EAGER: Hibernate cargará todos los datos de las entidades que
+                sean necesarias (incluidas las de las entidades hijas si hay
+                asociaciones).
+              </li>
+              <li>
+                LAZY: Con el modo
+                <em>perezoso</em>
+                solo se cargarán los datos cuando estos sean realmente
+                necesarios (es decir, cuando se vayan a útilizar).
+              </li>
+            </ul>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

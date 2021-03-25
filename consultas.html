@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="17.1-introducción">
+              <a name="17.1-introducción" href="#17.1-introducción"></a>
+              17.1 Introducción
+            </h2>
+            <p>
+              De poco servirían nuestras aplicaciones si no pudiéramos consultar
+              los datos que tenemos almacenados en nuestras bases de datos. JPA
+              e Hibernate nos proveen de un lenguaje de consulta a nivel de
+              entidades (JPA propone JPQL, e Hibernate HQL).
+            </p>
+            <h3 id="17.1.1-base-de-datos-de-ejemplo">
+              <a
+                name="17.1.1-base-de-datos-de-ejemplo"
+                href="#17.1.1-base-de-datos-de-ejemplo"
+              ></a>
+              17.1.1 Base de datos de ejemplo
+            </h3>
+            <p>
+              A lo largo de este capítulo utilizaremos una base de datos de
+              ejemplo, con la siguiente estructura:
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-reponsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/f7d9af1d-0273-47da-9d1c-07da288c6642.jpg"
+                alt="Esquema de la base de datos"
+              />
+            </p>
+            <p>
+              El esquema de la base de datos se puede descargar desde este
+              enlace
+            </p>
+            <p>
+              <a
+                href="https://dc722jrlp2zu8.cloudfront.net/media/attachments/academy_lesson/1964/mysqlsampledatabase.zip"
+              >
+                Script de creación de la base de datos
+              </a>
+            </p>
+            <p>
+              Para trabajar con ella, vamos a crear un proyecto y generar las
+              entidades a partir de las tablas, como en la lección
+              <em>Generación del Esquema</em>
+              .
+            </p>
+            <h2 id="17.2-jpql-básico">
+              <a name="17.2-jpql-básico" href="#17.2-jpql-básico"></a>
+              17.2 JPQL básico
+            </h2>
+            <p>
+              Por lo que hemos trabajado anteriormente, solo hemos podido
+              obtener, a través del
+              <em>EntityManager</em>
+              , entidades a partir de su identificador, y solamente una entidad
+              por consulta. Para aquellos que ya conozcan SQL esto resultará un
+              enfoque muy pobre. JPQL nos va a permitir realizar consultas en
+              base a muchos criterios, así como obtener más de un valor por
+              consulta.
+            </p>
+            <p>La consulta JPQL más básica tiene la siguiente estructura:</p>
+            <pre
+              class="hljs routeros"
+            ><code class="SQL">  SELECT c <span class="hljs-keyword">FROM</span><span class="hljs-built_in"> Customer </span>c
+        </code></pre>
+            <p>
+              Esta sentencia obtiene todas las instancias de
+              <code>Customer</code>
+              que existan en la base de datos. La expresión puede parecer un
+              poco extraña la primera vez que se ve, pero es muy sencilla de
+              entender. Las palabras SELECT y FROM tienen un significado similar
+              a las sentencias homónimas del lenguaje SQL, indicando que se
+              quiere seleccionar (SELECT) cierta información desde (FROM) cierto
+              lugar. La segunda c es un alias para la clase Customer, y ese
+              alias es usado por la primera c (llamada expresion) para acceder a
+              la clase (tabla) a la que hace referencia el alias, o a sus
+              propiedades (columnas). El siguiente ejemplo nos ayudará a
+              comprender esto mejor:
+            </p>
+            <pre
+              class="hljs routeros"
+            ><code class="SQL">  SELECT c.customerName <span class="hljs-keyword">FROM</span><span class="hljs-built_in"> Customer </span>c
+        </code></pre>
+            <p>
+              El alias c nos permite utilizar la expresión c.CustomerName para
+              obtener los nombres de todos los clientes almacenados en la base
+              de datos. La expresiones JPQL utilizan la notación de puntos,
+              pudiendo acceder a objetos anidados:
+            </p>
+            <pre
+              class="hljs n1ql"
+            ><code class="SQL">  <span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">e</span>.propiedad.anidada.masanidada <span class="hljs-keyword">FROM</span> Entidad <span class="hljs-built_in">e</span>
+        </code></pre>
+            <p>
+              Al igual que en SQL, JPQL nos permite obtener más de una
+              propiedad:
+            </p>
+            <pre
+              class="hljs routeros"
+            ><code class="SQL">  SELECT c.customerName, c.city, c.country <span class="hljs-keyword">FROM</span><span class="hljs-built_in"> Customer </span>c
+        </code></pre>
+            <h3 id="17.2.1-consultas-con-parámetros">
+              <a
+                name="17.2.1-consultas-con-parámetros"
+                href="#17.2.1-consultas-con-parámetros"
+              ></a>
+              17.2.1 Consultas con parámetros
+            </h3>
+            <p>
+              JPQL nos permite la inclusión de parámetros en base a un índice y
+              en base a un nombre:
+            </p>
+            <pre
+              class="hljs n1ql"
+            ><code class="SQL">  <span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">e</span> <span class="hljs-keyword">FROM</span> Employee <span class="hljs-built_in">e</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-built_in">e</span>.jobTitle = :jobTitle
+        </code></pre>
+            <pre
+              class="hljs sql"
+            ><code class="SQL">  <span class="hljs-keyword">SELECT</span> o <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">Order</span> o <span class="hljs-keyword">WHERE</span> o.orderDate <span class="hljs-keyword">BETWEEN</span> ?<span class="hljs-number">1</span> <span class="hljs-keyword">AND</span> ?<span class="hljs-number">2</span> <span class="hljs-keyword">AND</span> <span class="hljs-keyword">status</span> = ?<span class="hljs-number">3</span>
+        </code></pre>
+            <h3 id="17.2.2-consultas-con-salida-ordenada">
+              <a
+                name="17.2.2-consultas-con-salida-ordenada"
+                href="#17.2.2-consultas-con-salida-ordenada"
+              ></a>
+              17.2.2 Consultas con salida ordenada
+            </h3>
+            <p>
+              También nos permite la ordenación de los resultados, al estilo
+              SQL. Este orden puede ser ascendente (ASC) o descendente (DESC).
+            </p>
+            <pre
+              class="hljs crmsh"
+            ><code class="SQL">  SELECT o FROM <span class="hljs-keyword">Order</span> <span class="hljs-title">o</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-title">BY</span> o.orderDate DESC
+        </code></pre>
+            <h2 id="17.3-jpa-`query`">
+              <a name="17.3-jpa-`query`" href="#17.3-jpa-`query`"></a>
+              17.3 JPA
+              <code>Query</code>
+            </h2>
+            <p>
+              JPA nos provee de dos interfaces,
+              <code>javax.persistence.Query</code>
+              y
+              <code>javax.persistence.TypedQuery</code>
+              , que se obtienen directamente desde el
+              <em>EntityManager</em>
+              . Para ello, podemos usar el método
+              <em>EntityManager#createQuery</em>
+              . Para consultas con nombre (las veremos más adelante), podemos
+              usar el método
+              <em>EntityManager#createNamedQuery</em>
+              .
+            </p>
+            <pre
+              class="hljs stata"
+            ><code class="java"><span class="hljs-keyword">Query</span> <span class="hljs-keyword">query</span> = em.createQuery(
+            <span class="hljs-string">"select c from Customer c"</span>
+        );
+        
+        <span class="hljs-keyword">List</span>&lt;Customer&gt; listCustomer = (<span class="hljs-keyword">List</span>&lt;Customer&gt;) <span class="hljs-keyword">query</span>.getResultList();
+        </code></pre>
+            <p>
+              Para aquellas consultas que devuelven más de un resultado, tenemos
+              a nuestra disposición el método
+              <code>getResultList()</code>
+              ; si la consulta devuelve un solo resultado, tendremos entonces
+              que llamar a
+              <code>getSingleResult()</code>
+              .
+            </p>
+            <p>
+              Para asignar los parámetros dinámicos a las consultas, tenemos a
+              nuestra disposición diferentes versiones del método
+              <code>setParameter</code>
+              , que acepta tanto un índice como un nombre de parámetro, y un
+              objeto para utilizar en la consulta.
+            </p>
+            <pre
+              class="hljs n1ql"
+            ><code class="java">Query query = em.createQuery(
+          "<span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">e</span> <span class="hljs-keyword">FROM</span> Employee <span class="hljs-built_in">e</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-built_in">e</span>.jobTitle = :jobTitle<span class="hljs-string">"
+        );
+        
+        query.setParameter("</span>jobTitle<span class="hljs-string">", "</span>Sales Rep<span class="hljs-string">");
+        </span></code></pre>
+            <pre
+              class="hljs mipsasm"
+            ><code class="java">Query query = em.createQuery(
+        <span class="hljs-string">"SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2 AND status = ?3 ORDER BY o.orderDate DESC"</span>
+        )<span class="hljs-comment">;</span>
+        
+        <span class="hljs-keyword">Calendar </span><span class="hljs-keyword">calendar </span>= <span class="hljs-keyword">Calendar.getInstance();
+        </span><span class="hljs-keyword">calendar.set(2003, </span><span class="hljs-number">0</span>, <span class="hljs-number">1</span>)<span class="hljs-comment">;      </span>
+        query.setParameter(<span class="hljs-number">1</span>, <span class="hljs-keyword">calendar.getTime());
+        </span>
+        <span class="hljs-keyword">calendar.set(2003, </span><span class="hljs-number">5</span>, <span class="hljs-number">30</span>)<span class="hljs-comment">;</span>
+        query.setParameter(<span class="hljs-number">2</span>, <span class="hljs-keyword">calendar.getTime());
+        </span>
+        query.setParameter(<span class="hljs-number">3</span>, <span class="hljs-string">"Shipped"</span>)<span class="hljs-comment">;</span>
+        </code></pre>
+            <h2 id="17.4-joins-con-jpql">
+              <a name="17.4-joins-con-jpql" href="#17.4-joins-con-jpql"></a>
+              17.4 Joins con JPQL
+            </h2>
+            <p>
+              La operación JOIN es una operación básica en SQL, y sirve para
+              realizar una reunión conveniente entre dos tablas a partir de una
+              clave externa.
+            </p>
+            <h3 id="17.4.1-joins-explícitos">
+              <a
+                name="17.4.1-joins-explícitos"
+                href="#17.4.1-joins-explícitos"
+              ></a>
+              17.4.1 Joins explícitos
+            </h3>
+            <p>
+              Como no podía ser de otra manera, JPQL permite realizar los mismos
+              JOIN que en SQL (JOIN, INNER JOIN, LEFT | RIGHT JOIN), si bien uno
+              de los más interesantes el
+              <em>JOIN FETCH</em>
+              . Este join sobrescribe la forma en que se recuperan determinadas
+              asociaciones, evitando las N+1 consultas y sustituyéndolas por un
+              JOIN.
+            </p>
+            <pre
+              class="hljs sql"
+            ><code class="java">Query query = em.createQuery(
+            "<span class="hljs-keyword">select</span> c <span class="hljs-string">"
+          + "</span><span class="hljs-keyword">from</span> Customer c <span class="hljs-string">"
+          + "</span><span class="hljs-keyword">left</span> <span class="hljs-keyword">join</span> <span class="hljs-keyword">fetch</span> c.employee <span class="hljs-string">"
+        );
+        </span></code></pre>
+            <blockquote>
+              <p>
+                Para que un JOIN FETCH sea válido, la asociación debe estar en
+                alguna de las clases que estén descritas en la cláusula SELECT
+              </p>
+            </blockquote>
+            <h3 id="17.4.2-joins-implícitos">
+              <a
+                name="17.4.2-joins-implícitos"
+                href="#17.4.2-joins-implícitos"
+              ></a>
+              17.4.2 Joins implícitos
+            </h3>
+            <p>
+              Un JOIN implícito se realiza siempre a través de alguna de las
+              asociaciones de una entidad, navegando a través de sus
+              propiedades.
+            </p>
+            <pre
+              class="hljs stata"
+            ><code class="java">TypedQuery&lt;Customer&gt; <span class="hljs-keyword">query</span> = em.createQuery(
+            <span class="hljs-string">"select c "</span>
+          + <span class="hljs-string">"from Customer c "</span>
+          + <span class="hljs-string">"where c.employee = :employee"</span>, Customer.<span class="hljs-keyword">class</span>);
+        
+        <span class="hljs-keyword">query</span>.setParameter(<span class="hljs-string">"employee"</span>, em.find(Employee.<span class="hljs-keyword">class</span>, 1370));
+        </code></pre>
+            <blockquote>
+              <p>
+                El uso de TypedQuery en el ejemplo anterior es meramente
+                ilustrativo. Se puede realizar un JOIN implícito con
+                <em>Query</em>
+              </p>
+            </blockquote>
+            <h2 id="17.5-consultas-de-actualización">
+              <a
+                name="17.5-consultas-de-actualización"
+                href="#17.5-consultas-de-actualización"
+              ></a>
+              17.5 Consultas de actualización
+            </h2>
+            <p>
+              JPQL también nos permite lanzar consultas de actualización de
+              datos. La estructura sintáctica de las consultas es muy similar a
+              la de SQL nativo:
+            </p>
+            <pre
+              class="hljs n1ql"
+            ><code class="SQL"><span class="hljs-keyword">UPDATE</span> Entity <span class="hljs-built_in">e</span>
+        <span class="hljs-keyword">SET</span> <span class="hljs-built_in">e</span>.prop1 = newValue1, <span class="hljs-built_in">e</span>.prop2 = newValue2, ...
+        <span class="hljs-keyword">WHERE</span> ...
+        </code></pre>
+            <pre
+              class="hljs n1ql"
+            ><code class="SQL"><span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> Entity <span class="hljs-built_in">e</span>
+        <span class="hljs-keyword">WHERE</span> ...
+        </code></pre>
+            <p>
+              Para invocarlas, tenemos que utilizar el método
+              <code>executeUpdate</code>
+              de la interfaz
+              <code>Query</code>
+              .
+            </p>
+            <pre
+              class="hljs gauss"
+            ><code class="java">em.getTransaction().begin();
+        
+        <span class="hljs-comment">//UPDATE</span>
+        
+        <span class="hljs-comment">//Incremento del 10% en el límite de crédito a todos los clientes</span>
+        int numUpdateResults = em.createQuery(
+            <span class="hljs-string">"update Customer c "</span>
+            + <span class="hljs-string">"set c.creditLimit = c.creditLimit * 1.1"</span>)
+            .executeUpdate();
+        <span class="hljs-keyword">System</span>.out.println(<span class="hljs-string">"Número de registros afectados: "</span> + numUpdateResults);
+        
+        <span class="hljs-comment">//DELETE</span>
+        
+        <span class="hljs-built_in">Date</span> <span class="hljs-built_in">date</span> = <span class="hljs-built_in">null</span>;
+        try {
+        <span class="hljs-built_in">date</span> = <span class="hljs-keyword">new</span> SimpleDateFormat(<span class="hljs-string">"dd/MM/yyyy"</span>).<span class="hljs-built_in">parse</span>(<span class="hljs-string">"06/06/2003"</span>);
+        
+          int numDeleteResults = em.createQuery(
+              <span class="hljs-string">"delete from Payment p "</span>
+              + <span class="hljs-string">"where p.paymentDate = :fecha"</span>)
+              .setParameter(<span class="hljs-string">"fecha"</span>, <span class="hljs-built_in">date</span>)
+              .executeUpdate();
+        
+          <span class="hljs-keyword">System</span>.out.println(<span class="hljs-string">"Número de registros afectados: "</span> + numDeleteResults);
+        
+        
+        } catch (ParseException e) {
+        <span class="hljs-keyword">System</span>.err.println(<span class="hljs-string">"Error en el parseo de la fecha"</span>);
+        }
+        
+        em.getTransaction().commit();
+        </code></pre>
+            <p>
+              JPQL no permite la ejecución de sentencias
+              <em>INSERT</em>
+              . Sin embargo, HQL si que lo permite:
+            </p>
+            <pre
+              class="hljs sql"
+            ><code class="java">int insertedEntities = session.createQuery(
+            "<span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> Partner (<span class="hljs-keyword">id</span>, <span class="hljs-keyword">name</span>) <span class="hljs-string">" +
+            "</span><span class="hljs-keyword">select</span> p.id, p.name <span class="hljs-string">" +
+            "</span><span class="hljs-keyword">from</span> Person p <span class="hljs-string">")
+        .executeUpdate();
+        </span></code></pre>
+            <h2 id="17.6-namedqueries">
+              <a name="17.6-namedqueries" href="#17.6-namedqueries"></a>
+              17.6 NamedQueries
+            </h2>
+            <p>
+              Las consultas con nombre son un tipo de consultas especiales ya
+              que, una vez que son definidas, no pueden ser modificadas. Son
+              leídas y transformadas en SQL durante la inicialización del
+              contexto de persistencia. Por ello, son más eficientes y ofrecen
+              un rendimiento mayor. Se suelen definir mediante anotaciones en
+              las clases entidad, si bien también pueden declararse en XML.
+            </p>
+            <p>
+              El asistente de Eclipse que nos ha generado las entidades desde
+              las tablas nos ha incluido una sentencia por defecto en cada una
+              de ellas:
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Table</span>(name=<span class="hljs-string">"customers"</span>)
+        <span class="hljs-variable">@NamedQuery</span>(name=<span class="hljs-string">"Customer.findAll"</span>, query=<span class="hljs-string">"SELECT c FROM Customer c"</span>)
+        public class Customer implements Serializable {
+            <span class="hljs-comment">//Resto del código</span>
+        }
+        </code></pre>
+            <p>
+              Como podemos comprobar, la anotación
+              <code>@NamedQuery</code>
+              requiere de dos argumentos: el nombre que le vamos a dar a la
+              consulta, y la definición de la consulta en sí.
+            </p>
+            <p>
+              Para ejecutar esta consulta, tenemos que utilizar el método
+              <code>createNamedQuery</code>
+              de
+              <em>EntityManager</em>
+              .
+            </p>
+            <pre
+              class="hljs ebnf"
+            ><code class="java"><span class="hljs-attribute">Query query</span> = em.createNamedQuery(<span class="hljs-string">"Customer.findAll"</span>);
+        </code></pre>
+            <p>
+              Se pueden añadir más de una consulta con nombre, a través de la
+              anotación
+              <code>@NamedQueries</code>
+              . Las consultas también pueden recibir parámetros.
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Table</span>(name=<span class="hljs-string">"customers"</span>)
+        <span class="hljs-variable">@NamedQueries</span>({
+                <span class="hljs-variable">@NamedQuery</span>(name=<span class="hljs-string">"Customer.findAll"</span>, query=<span class="hljs-string">"SELECT c FROM Customer c"</span>),
+                <span class="hljs-variable">@NamedQuery</span>(name=<span class="hljs-string">"Customer.findByName"</span>, query=<span class="hljs-string">"SELECT c FROM Customer c WHERE c.customerName LIKE :name"</span>),
+                <span class="hljs-variable">@NamedQuery</span>(name=<span class="hljs-string">"Customer.findByEmployee"</span>, query=<span class="hljs-string">"SELECT c FROM Customer c WHERE c.employee = :employee"</span>),
+        })
+        public class Customer implements Serializable {
+        
+        }
+        </code></pre>
+            <h2 id="17.7-consultas-con-sql-nativo">
+              <a
+                name="17.7-consultas-con-sql-nativo"
+                href="#17.7-consultas-con-sql-nativo"
+              ></a>
+              17.7 Consultas con SQL nativo
+            </h2>
+            <p>
+              JPA e Hibernate también permiten la ejecución de SQL nativo (en
+              particular, el dialecto del RDBMS que estemos usando). Esto es muy
+              útil cuando nuestro sistema tiene funcionalidades específicas, o
+              si nuestra experiencia en SQL nos permite implementar sentencias
+              que sean realmente eficientes.
+            </p>
+            <h3 id="17.7.1-consultas-escalares">
+              <a
+                name="17.7.1-consultas-escalares"
+                href="#17.7.1-consultas-escalares"
+              ></a>
+              17.7.1 Consultas escalares
+            </h3>
+            <p>
+              La consulta más básica es aquella en la que obtenemos una lista de
+              valores en un Object[].
+            </p>
+            <pre
+              class="hljs dart"
+            ><code class="java"><span class="hljs-built_in">List</span>&lt;<span class="hljs-built_in">Object</span>[]&gt; customers = entityManager.createNativeQuery(
+            <span class="hljs-string">"SELECT * FROM customers"</span> )
+        .getResultList();
+        </code></pre>
+            <pre
+              class="hljs javascript"
+            ><code class="java">List&lt;<span class="hljs-built_in">Object</span>[]&gt; employees = entityManager.createNativeQuery(
+            <span class="hljs-string">"SELECT employeeNumber, firstName, lastName FROM employees"</span> )
+        .getResultList();
+        
+        <span class="hljs-keyword">for</span>(<span class="hljs-built_in">Object</span>[] employee : employees) {
+            <span class="hljs-built_in">Number</span> employeeNumber = (<span class="hljs-built_in">Number</span>) employee[<span class="hljs-number">0</span>];
+            <span class="hljs-built_in">String</span> firstName = (<span class="hljs-built_in">String</span>) employee[<span class="hljs-number">1</span>];
+            <span class="hljs-built_in">String</span> lastName = (<span class="hljs-built_in">String</span>) employee[<span class="hljs-number">2</span>];
+        }
+        </code></pre>
+            <h3 id="17.7.2-consultas-de-entidades">
+              <a
+                name="17.7.2-consultas-de-entidades"
+                href="#17.7.2-consultas-de-entidades"
+              ></a>
+              17.7.2 Consultas de entidades
+            </h3>
+            <p>También podemos obtener entidades desde consultas nativas:</p>
+            <pre
+              class="hljs dart"
+            ><code class="java"><span class="hljs-built_in">List</span>&lt;Customer&gt; customers = entityManager.createNativeQuery(
+            <span class="hljs-string">"SELECT * FROM customers"</span>, Customer.<span class="hljs-keyword">class</span> )
+        .getResultList();
+        </code></pre>
+            <blockquote>
+              <p>
+                Dado que la entidad Customer tiene asociaciones y algunas de
+                ellas están mapeadas con fetch EAGER, al ejecutar este ejemplo,
+                JPA+Hibernate rescatan el resto de datos necesarios a través de
+                consultas JPQL.
+              </p>
+            </blockquote>
+            <h3 id="17.7.3-manejo-de-asociaciones">
+              <a
+                name="17.7.3-manejo-de-asociaciones"
+                href="#17.7.3-manejo-de-asociaciones"
+              ></a>
+              17.7.3 Manejo de asociaciones
+            </h3>
+            <p>
+              JPA e Hiberante también nos permite manejar asociaciones con SQL
+              nativo.
+            </p>
+            <p>
+              Por ejemplo, si nuestra entidad tiene una asociación
+              <em>Many-To-One</em>
+              con otra, al usar SQL nativo tenemos que devolver la clave externa
+              para que no se produzca un error:
+            </p>
+            <pre
+              class="hljs dart"
+            ><code class="java"><span class="hljs-built_in">List</span>&lt;Employee&gt; employeesList = em.createNativeQuery(
+                        <span class="hljs-string">"SELECT employeeNumber, lastName, firstName, extension, email, officeCode, reportsTo, jobTitle FROM employees"</span>,
+                        Employee.<span class="hljs-keyword">class</span>).getResultList();
+        </code></pre>
+            <h3 id="17.7.4-consultas-sql-con-nombre">
+              <a
+                name="17.7.4-consultas-sql-con-nombre"
+                href="#17.7.4-consultas-sql-con-nombre"
+              ></a>
+              17.7.4 Consultas SQL con nombre
+            </h3>
+            <p>
+              Por último, decir que también podemos definir consultas con
+              nombre, como ocurría con JPQL. Estas se definen a través de la
+              anotación
+              <code>@NamedNativeQuery</code>
+              .
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Table</span>(name=<span class="hljs-string">"employees"</span>)
+        <span class="hljs-variable">@NamedQuery</span>(name=<span class="hljs-string">"Employee.findAll"</span>, query=<span class="hljs-string">"SELECT e FROM Employee e"</span>)
+        <span class="hljs-variable">@NamedNativeQuery</span>(name=<span class="hljs-string">"Employee.nativeFindAll"</span>, query=<span class="hljs-string">"SELECT * FROM employees"</span>, resultClass=Employee.class)
+        public class Employee implements Serializable {
+          <span class="hljs-comment">//Resto de código</span>
+        }
+        </code></pre>
+            <p>Su uso también es muy sencillo</p>
+            <pre
+              class="hljs abnf"
+            ><code class="java">List&lt;Employee&gt; employeesList = em.createNamedQuery(<span class="hljs-string">"Employee.nativeFindAll"</span>).getResultList()<span class="hljs-comment">;</span>
+        </code></pre>
+            <h2 id="17.8-consultas-con-herencia">
+              <a
+                name="17.8-consultas-con-herencia"
+                href="#17.8-consultas-con-herencia"
+              ></a>
+              17.8 Consultas con herencia
+            </h2>
+            <p>
+              En el caso de la herencia, las consultas pueden tener un
+              comportamiento un poco peculiar. Las consultas reales que se
+              ejecutarán dependerán de las estrategias de herencia que
+              escojamos.
+            </p>
+            <p>
+              Si rescatamos el ejemplo que revisamos en el capítulo referente a
+              la herencia:
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Inheritance</span>(strategy = InheritanceType.TIPO_DE_HERENCIA)
+        public class Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        public class CuentaCredito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        <span class="hljs-variable">@Entity</span>
+        public class CuentaDebito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        </code></pre>
+            <p>
+              En función del
+              <em>TIPO_DE_HERENCIA</em>
+              que escojamos, las consultas funcionarán de una manera o de otra.
+            </p>
+            <h3 id="17.8.1-consultas-con-herencia-*single_table*">
+              <a
+                name="17.8.1-consultas-con-herencia-*single_table*"
+                href="#17.8.1-consultas-con-herencia-*single_table*"
+              ></a>
+              17.8.1 Consultas con herencia
+              <em>SINGLE_TABLE</em>
+            </h3>
+            <p>En este caso, una consulta como la siguiente:</p>
+            <pre
+              class="hljs llvm"
+            ><code class="SQL">  <span class="hljs-keyword">select</span> <span class="hljs-keyword">c</span> from Cuenta <span class="hljs-keyword">c</span>
+        </code></pre>
+            <p>
+              Nos devolverá todas las instancias del tipo base
+              <code>Cuenta</code>
+              y de los extendidos
+              <code>CuentaCredito</code>
+              y
+              <code>CuentaDebito</code>
+              .
+            </p>
+            <p>
+              Si queremos obtener de un subtipo en particular, podemos hacer uso
+              de la función
+              <code>TYPE(?)</code>
+              , comparando con uno de los valores que hayamos usado como
+              <code>@DiscriminatorValue</code>
+              :
+            </p>
+            <pre
+              class="hljs oxygene"
+            ><code class="SQL"><span class="hljs-keyword">select</span> c <span class="hljs-keyword">from</span> Cuenta c <span class="hljs-keyword">Where</span> <span class="hljs-keyword">TYPE</span>(c) = <span class="hljs-string">'CC'</span>
+        </code></pre>
+            <h3 id="17.8.2-consultas-con-herencia-*joined*">
+              <a
+                name="17.8.2-consultas-con-herencia-*joined*"
+                href="#17.8.2-consultas-con-herencia-*joined*"
+              ></a>
+              17.8.2 Consultas con herencia
+              <em>JOINED</em>
+            </h3>
+            <p>
+              Al igual que el caso anterior, una consulta como la siguiente:
+            </p>
+            <pre
+              class="hljs llvm"
+            ><code class="SQL">  <span class="hljs-keyword">select</span> <span class="hljs-keyword">c</span> from Cuenta <span class="hljs-keyword">c</span>
+        </code></pre>
+            <p>
+              Nos devolverá todas las instancias del tipo base
+              <code>Cuenta</code>
+              y de los extendidos
+              <code>CuentaCredito</code>
+              y
+              <code>CuentaDebito</code>
+              .
+            </p>
+            <p>
+              Si queremos hacer una consulta que nos devuelva un subtipo, tan
+              solo tenemos que pedirlo explícitamente en el FROM:
+            </p>
+            <pre
+              class="hljs llvm"
+            ><code class="SQL">  <span class="hljs-keyword">select</span> <span class="hljs-keyword">cc</span> from CuentaCredito <span class="hljs-keyword">cc</span>
+        </code></pre>
+            <p>
+              Si lo que queremos, es consultar la entidad base, pero filtrando
+              por tipo, la función
+              <code>TYPE(?)</code>
+              también funciona aquí, usando como valor de comparación el nombre
+              de la entidad.
+            </p>
+            <pre
+              class="hljs llvm"
+            ><code class="SQL"><span class="hljs-keyword">select</span> <span class="hljs-keyword">c</span> from Cuenta <span class="hljs-keyword">c</span> Where TYPE(<span class="hljs-keyword">c</span>) = Cuenta
+        </code></pre>
+            <p>
+              Esta consulta nos devolvería solamente la instancias de la entidad
+              <em>base</em>
+              .
+            </p>
+            <p>
+              Si comprobamos la ejecución de estas consultas, encontraremos que
+              Hibernate tiene que ejecutar varios JOINS para poder realizarlas.
+            </p>
+            <h3 id="17.8.3-consultas-con-herencia-*table_per_class*">
+              <a
+                name="17.8.3-consultas-con-herencia-*table_per_class*"
+                href="#17.8.3-consultas-con-herencia-*table_per_class*"
+              ></a>
+              17.8.3 Consultas con herencia
+              <em>TABLE_PER_CLASS</em>
+            </h3>
+            <p>
+              La estrategia de consultas que podemos realizar es la misma que en
+              el caso
+              <em>JOINED</em>
+              , pero si revisamos el código SQL que ejecuta Hibernate, podremos
+              comprobar que utiliza varias sentencias SQL unidas por cláusulas
+              UNION.
+            </p>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

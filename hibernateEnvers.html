@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="18.1-introducción">
+              <a name="18.1-introducción" href="#18.1-introducción"></a>
+              18.1 Introducción
+            </h2>
+            <p>
+              Envers es un módulo del núcleo de hibernate que puede trabajar
+              tanto con JPA como con Hibernate nativo. Nos permite implementar
+              fácilmente el versionado/auditoría para clases, es decir, la
+              posibilidad de tener un histórico de cambios que han sucedido fila
+              a fila.
+            </p>
+            <h2 id="18.2-configuración">
+              <a name="18.2-configuración" href="#18.2-configuración"></a>
+              18.2 Configuración
+            </h2>
+            <p>
+              Para poder usar Envers, tenemos que añadir una nueva dependencia
+              en el
+              <code>pom.xml</code>
+              :
+            </p>
+            <pre
+              class="hljs xml"
+            ><code class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.hibernate<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>hibernate-envers<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>5.2.9.Final<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+        </code></pre>
+            <p>
+              Para cada entidad que queramos auditar, tenemos que incluir la
+              anotación
+              <code>@Audited</code>
+              . Al incluirlo en nuestro proyecto, podemos observar que para cada
+              entidad auditada se ha creado una nueva tabla en la base de datos,
+              llamada
+              <em>entity_table_AUD</em>
+              .
+            </p>
+            <blockquote>
+              <p>
+                Envers crea automáticamente las tablas de auditoría si usamos la
+                propiedad hiberante.hbm2ddl.auto con valores
+                <em>create</em>
+                ,
+                <em>create-drop</em>
+                o
+                <em>update</em>
+                . En otro caso, tenemos que generar nosotros el esquema, aunque
+                este puede ser generado mediante una tarea Ant.
+              </p>
+            </blockquote>
+            <p>
+              Podemos usar la anotación
+              <code>@Audited</code>
+              a nivel de tabla y también a nivel de propiedad (si solo queremos
+              auditar una serie de propiedades, y no la entidad completa).
+            </p>
+            <h3 id="18.2.1-propiedades-de-configuración">
+              <a
+                name="18.2.1-propiedades-de-configuración"
+                href="#18.2.1-propiedades-de-configuración"
+              ></a>
+              18.2.1 Propiedades de configuración
+            </h3>
+            <p>
+              Podemos utilizar algunas propiedades para configurar determinados
+              aspectos de Envers, como los prefijos y sufijos de tablas, nombres
+              de propiedades, etc… A continuación podemos ver algunos de los más
+              utilizados:
+            </p>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Propiedad</th>
+                    <th>Valor por defecto</th>
+                    <th>Descripción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>org.hibernate.envers.audit_table_prefix</td>
+                    <td></td>
+                    <td>
+                      Prefijo que se añadirá al nombre de las tablas de
+                      auditoría
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>org.hibernate.envers.audit_table_suffix</td>
+                    <td>_AUD</td>
+                    <td>
+                      Sufijo que se añadirá al nombre de las tablas de auditoría
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>org.hibernate.envers.revision_field_name</td>
+                    <td>REV</td>
+                    <td>
+                      Nombre del campo en la entidad auditada que almacenará el
+                      número de revisión.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>org.hibernate.envers.revision_type_field_name</td>
+                    <td>REVTYPE</td>
+                    <td>
+                      Nombre del campo en la entidad auditada que almacenará el
+                      tipo de cambio realizado (
+                      <code>add</code>
+                      ,
+                      <code>mod</code>
+                      ,
+                      <code>del</code>
+                      ).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>org.hibernate.envers.audit_strategy</td>
+                    <td>
+                      <code>
+                        org.hibernate.envers.strategy.DefaultAuditStrategy
+                      </code>
+                    </td>
+                    <td>
+                      Estrategia de auditoria a utilizar. La estrategia por
+                      defecto almacena solo la revisión. Otra alternativa es
+                      <code>
+                        org.hibernate.envers.strategy.ValidityAuditStrategy
+                      </code>
+                      , que almacena más información. Es mas lenta para los
+                      cambios, pero más rápida para la lectura.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      org.hibernate.envers.audit_strategy_validity_store_revend_timestamp
+                    </td>
+                    <td>false</td>
+                    <td>
+                      Indica si la fecha de la revisión se puede almacenar
+                      mientras que los datos son válidos. Esto es útil para
+                      particionar o rotar la base de datos. Esta propiedad es
+                      solo utili si usamos
+                      <code>ValidityAuditStrategy</code>
+                      .
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h2 id="18.3-utilización-de-hiberante-envers">
+              <a
+                name="18.3-utilización-de-hiberante-envers"
+                href="#18.3-utilización-de-hiberante-envers"
+              ></a>
+              18.3 Utilización de Hiberante Envers
+            </h2>
+            <p>
+              Como hemos dicho antes, para activar envers, tan solo tenemos que
+              añadir la dependencia en el proyecto, y marcar aquellas entidades
+              (o propiedades de entidades) que queremos auditar. A partir de
+              ahí, envers empieza a hacer su trabajo.
+            </p>
+            <p>Supongamos dos entidades a auditar:</p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Audited</span>
+        public class Categoria implements Serializable {
+        
+            <span class="hljs-variable">@Id</span>
+            <span class="hljs-variable">@GeneratedValue</span>(strategy=GenerationType.AUTO)
+            private long id;
+            <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">String</span> <span class="hljs-selector-tag">nombre</span>;
+        
+          <span class="hljs-comment">//Resto de atributos o métodos</span>
+        
+        }
+        
+        @<span class="hljs-selector-tag">Entity</span>
+        @<span class="hljs-selector-tag">Audited</span>
+        <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">class</span> <span class="hljs-selector-tag">Producto</span> <span class="hljs-selector-tag">implements</span> <span class="hljs-selector-tag">Serializable</span> {
+        
+            <span class="hljs-variable">@Id</span>
+            <span class="hljs-variable">@GeneratedValue</span>(strategy=GenerationType.AUTO)
+            private long id;
+            <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">String</span> <span class="hljs-selector-tag">nombre</span>;
+            <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">String</span> <span class="hljs-selector-tag">descripcion</span>;
+            <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">double</span> <span class="hljs-selector-tag">pvp</span>;
+        
+            @<span class="hljs-selector-tag">ManyToOne</span>
+            <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">Categoria</span> <span class="hljs-selector-tag">categoria</span>;
+        
+          <span class="hljs-comment">//Resto de atributos o métodos</span>
+        }
+        </code></pre>
+            <p>
+              Al crear el esquema, Hibernate genera más tablas de lo habitual:
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/32233af6-184b-423a-a4be-83fa8a8c3478.JPG"
+                alt="Tablas generadas"
+              />
+            </p>
+            <p>
+              Si por ejemplo, insertamos una serie de elementos
+              <code>Categoria</code>
+            </p>
+            <pre class="hljs cpp"><code class="java">Categoria[] categorias = {
+          <span class="hljs-keyword">new</span> Categoria(<span class="hljs-string">"Ordenadores y portátiles"</span>),
+          <span class="hljs-keyword">new</span> Categoria(<span class="hljs-string">"Smartphones y telefonía"</span>),
+          <span class="hljs-keyword">new</span> Categoria(<span class="hljs-string">"Imagen y sonido"</span>)
+        };
+        
+        addCategorias(Arrays.asList(categorias));
+        
+        
+        
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addCategorias</span><span class="hljs-params">(List&lt;Categoria&gt; <span class="hljs-built_in">list</span>)</span> </span>{
+                em.getTransaction().begin();
+                <span class="hljs-keyword">for</span> (Categoria c : <span class="hljs-built_in">list</span>)
+                    em.persist(c);
+                em.getTransaction().commit();
+        }
+        </code></pre>
+            <p>
+              Se insertan, en la tabla
+              <code>categoria</code>
+              , las 3 categorías (como era de esperar). Pero además, se insertar
+              los respectivos registro de revisión en la tabla
+              <code>categoria_aud</code>
+              .
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/ada257c1-638a-43a1-8df8-b4bf4d39587e.jpg"
+                alt="Valores generados"
+              />
+            </p>
+            <p>
+              Esto sucede también con
+              <code>Producto</code>
+              y las tablas
+              <code>producto</code>
+              y
+              <code>producto_aud</code>
+              . Si insertamos una serie de productos, realizamos algunos cambios
+              sobre ellos, y posteriormente los borramos, se generan múltiples
+              valores en la tabla de auditoria:
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/9f66e4df-881e-445f-bc90-3141dd6a640c.JPG"
+                alt="Valores generados"
+              />
+            </p>
+            <h2 id="18.4-consulta-sobre-valores-auditados">
+              <a
+                name="18.4-consulta-sobre-valores-auditados"
+                href="#18.4-consulta-sobre-valores-auditados"
+              ></a>
+              18.4 Consulta sobre valores auditados
+            </h2>
+            <p>
+              Hibernate Envers nos permite realizar consultas sobre los valores
+              auditados. Para ello, necesitamos generar un
+              <code>AuditReader</code>
+              :
+            </p>
+            <pre
+              class="hljs ebnf"
+            ><code class="java"><span class="hljs-attribute">AuditReader reader</span> = AuditReaderFactory.get(entityManager);
+        </code></pre>
+            <p>
+              Con este objeto, podemos generar un
+              <code>AuditQueryCreator</code>
+              que pone a nuestra disposición varios métodos de consulta. Uno de
+              los más útiles es
+              <code>forRevisionsOfEntity</code>
+              . Este nos permite consultar las diferentes revisiones de objetos
+              de un tipo, así como los datos asociados a la revisión. Si no se
+              indica lo contrario, devuelve una lista de objetos con 3 valores:
+            </p>
+            <ul>
+              <li>La instancia con los valores de la entidad audiatada</li>
+              <li>
+                Si no se utiliza un tipo específico para la revisión, un objeto
+                de tipo
+                <code>DefaultRevisionEntity</code>
+                , que nos permite consultar en id de la revisión o la fecha.
+              </li>
+              <li>
+                Un objeto de tipo
+                <code>RevisionType</code>
+                , que nos permite saber si la información se almacenó por una
+                inserción (ADD), modificación (MOD) o un borrado (DEL).
+              </li>
+            </ul>
+            <pre
+              class="hljs dart"
+            ><code class="java">AuditQuery query = reader.createQuery().forRevisionsOfEntity(Producto.<span class="hljs-keyword">class</span>, <span class="hljs-keyword">false</span>, <span class="hljs-keyword">true</span>);
+        
+                <span class="hljs-built_in">List</span>&lt;<span class="hljs-built_in">Object</span>[]&gt; results = query.getResultList();
+        
+                <span class="hljs-keyword">for</span> (<span class="hljs-built_in">Object</span>[] obj : results) {
+                    Producto p = (Producto) obj[<span class="hljs-number">0</span>];
+                    DefaultRevisionEntity dre = (DefaultRevisionEntity) obj[<span class="hljs-number">1</span>];
+                    RevisionType revType = (RevisionType) obj[<span class="hljs-number">2</span>];
+                    System.out.println(<span class="hljs-built_in">String</span>.format(<span class="hljs-string">"(Id: %d) - Producto: %s (%.2f €) (%s el %s)"</span>, dre.getId(), p.getNombre(), p.getPvp(),
+                            revType.toString(), dre.getRevisionDate()));
+        
+                }
+        </code></pre>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

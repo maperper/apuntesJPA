@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="6.1-modelo-de-dominio">6.1 Modelo de Dominio</h2>
+
+            <p>
+              Un modelo de dominio es una descripción de las diferentes
+              <em>entidades</em>
+              , atributos y relaciones asociados a un problema específico (
+              <a href="https://es.wikipedia.org/wiki/Modelo_de_dominio">
+                Modelo de dominio
+              </a>
+              ).
+            </p>
+
+            <p>
+              Para representar este modelo, se suele utilizar un diagrama de
+              clases UML, una herramienta potente que nos permite describir este
+              tipo de modelos.
+            </p>
+
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                alt="Modelo de dominio"
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/84e1e68d-3589-45e5-bc59-4daff70f1cba.png"
+              />
+            </p>
+
+            <p>
+              Este tipo de diagramas, a la hora de definir nuestro problema (lo
+              que en Ing. del Software se llama la
+              <strong>fase de análisis</strong>
+              ), no representa ningún tipo de clase asociada a la solución del
+              problema.
+              <strong>
+                Básicamente, es la información que necesitamos persistir
+              </strong>
+              . Serán las clases que el ORM debe transformar en filas de tablas
+              de nuestra base de datos relacional, y las representaremos
+              mediante clases POJO (Plain Old Java Object) o
+              <a href="https://es.wikipedia.org/wiki/JavaBean">JavaBeans</a>
+              .
+            </p>
+
+            <h2 id="6.2-valores-y-entidades">6.2 Valores y entidades</h2>
+
+            <p>
+              En Hibernate, una entidad será la representación de una clase del
+              modelo. En cambio, un valor será la representación de un atributo
+              de una clase.
+            </p>
+
+            <p>
+              Por ejemplo, si estuviéramos implementando una lista de contactos,
+              el
+              <em>Contacto</em>
+              sería, con toda probabilidad, una entidad; y el
+              <em>email</em>
+              sería un valor de la misma.
+            </p>
+
+            <h3 id="6.2.1-valores">6.2.1 Valores</h3>
+
+            <p>
+              A diferencia de las entidades, no tienen un ciclo de vida propio,
+              y existen tres categorías:
+            </p>
+
+            <ul>
+              <li>Tipos básicos</li>
+              <li>
+                Tipos
+                <em>embeddable</em>
+              </li>
+              <li>Tipos colección</li>
+            </ul>
+
+            <h3 id="6.2.2-entidades">6.2.2 Entidades</h3>
+
+            <p>
+              Las entidades si tienen un ciclo de vida; además, por el hecho de
+              tener un identificador único (en el campo de las RDBMS se llama
+              clave primaria), existen independientemente de otros objetos. Esto
+              no sucede con los valores.
+            </p>
+
+            <blockquote>
+              <h4 id="identidad-e-igualdad">Identidad e igualdad</h4>
+
+              <p>
+                En Java, hay diferencia entre identidad e igualdad. Dos objetos
+                tienen la misma identidad si la comparación con el operador ==
+                devuelve true; es decir, son dos referencias apuntando al mismo
+                objeto en memoria.
+                <br />
+                Por otro lado, la igualdad, también llamada a veces
+                <em>equivalencia</em>
+                , hace referencia al método equals. Dos objetos son iguales si
+                su
+                <em>estado</em>
+                (el valor de sus propiedades) es el mismo.
+                <br />
+                Las bases de datos relacionales complican este panorama. Dos
+                objetos almacenados en una base de datos relacional son
+                idénticos si están en la misma tabla y tienen la misma clave
+                primaria (a esto se le llama identidad de base de datos).
+              </p>
+            </blockquote>
+
+            <h2 id="6.3-mapeo-de-entidades-con-anotaciones">
+              6.3 Mapeo de entidades con anotaciones
+            </h2>
+
+            <p>
+              Para convertir una clase Java en una
+              <strong>entidad</strong>
+              , tan solo tenemos que hacer dos cosas:
+            </p>
+
+            <ul>
+              <li>
+                Anotarla con
+                <code>@Entity</code>
+                .
+              </li>
+              <li>
+                Incluir un atributo que esté anotado con
+                <code>@Id</code>
+                .
+              </li>
+            </ul>
+
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyEntity</span> </span>{
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> id;
+    }
+
+}
+</code></pre>
+
+            <p>
+              Por defecto, esta entidad se mapea en la base de datos con una
+              tabla llamada
+              <code>MIENTIDAD</code>
+              .
+            </p>
+
+            <p>
+              Como la anotación
+              <code>@Id</code>
+              es sobre un campo, por defecto, Hibernate habilitará por defecto
+              todos los atributos de la clase como propiedades persistentes.
+            </p>
+
+            <h3 id="6.3.1-eligiendo-la-clave-primaria.">
+              6.3.1 Eligiendo la clave primaria.
+            </h3>
+
+            <p>
+              Si bien en el mundo de los diseñadores de bases de datos
+              relacionales ha existido siempre una serie de procesos formales
+              para la determinación de dependencias entre atributos y el cálculo
+              de las claves primarias, es una práctica habitual entre los
+              desarrolladores el utilizar un valor numérico (entero y
+              potencialmente grande), como en el ejemplo anterior (
+              <code>long id</code>
+              ).
+              <br />
+              Además, para
+              <em>tranquilidad</em>
+              del programador, este valor puede ser autogenerado (por ejemplo,
+              puede comenzar en 1, y asignar el siguiente valor a cada
+              <em>fila</em>
+              insertada).
+            </p>
+
+            <p>
+              Añadiendo la anotación
+              <code>@GeneratedValue</code>
+              a continuación de
+              <code>@Id</code>
+              , JPA asume que se va a generar un valor y a asignar el mismo
+              antes de almacenar la instancia de la entidad. Existen diferentes
+              estrategias de asignación:
+            </p>
+
+            <ul>
+              <li>
+                <code>GenerationType.AUTO</code>
+                : Hiberante escoge la mejor estrategia en función del dialecto
+                SQL configurado (es decir, dependiendo del RDBMS).
+              </li>
+              <li>
+                <code>GenerationType.SEQUENCE</code>
+                : Espera usar una secuencia SQL para generar los valores.
+              </li>
+              <li>
+                <code>GenerationType.IDENTITY</code>
+                : Hibernate utiliza una columna especial, autonumérica.
+              </li>
+              <li>
+                <code>GenerationType.TABLE</code>
+                : Hibernate usa una tabla extra en nuestra base de datos. Tiene
+                una fila por cada tipo de entidad diferente, y almacena el
+                siguiente valor a utilizar.
+              </li>
+            </ul>
+
+            <blockquote>
+              <h4 id="generación-de-los-id-antes-o-después-de-la-inserción">
+                Generación de los ID antes o después de la inserción
+              </h4>
+
+              <p>
+                Normalmente, un ORM optimizará las inserciones en una base de
+                datos, agrupándolas por lotes. Esto supone que, en la realidad,
+                es posible que no se realice la inserción al llamar al método
+                <code>entityManager.persist(someEntity)</code>
+                . Si esperamos a generar el ID a insertar los datos tiene como
+                inconveniente que si llamamos a
+                <code>someEntity.getId()</code>
+                , obtendremos nulo. Por tanto, suele ser buena estrategia
+                generar el ID antes de insertar, por ejemplo a través de una
+                secuencia. Las columnas autoincrementales, los valores por
+                defecto o las claves generadas por un trigger solo están
+                disponibles después de la inserción.
+              </p>
+            </blockquote>
+
+            <h3 id="6.3.2-control-de-nombres">6.3.2 Control de nombres</h3>
+
+            <p>
+              Por defecto, Hibernate toma una
+              <em>estrategia de generación de nombres</em>
+              para transformar el nombre de una clase (que en Java normalmente
+              estará escrita en notación
+              <a href="https://es.wikipedia.org/wiki/CamelCase">
+                UpperCamelCase
+              </a>
+              ) al nombre de una tabla (por defecto, suele usar el mismo nombre
+              en MAYÚSCULAS).
+            </p>
+
+            <p>
+              Se puede controlar el nombre de la tabla a través de la anotación
+              <code>@Table(name= "NEWNAME")</code>
+              .
+            </p>
+
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+<span class="hljs-variable">@Table</span>(name= <span class="hljs-string">"MY_ENT"</span>)
+public class MyEntity {
+
+    <span class="hljs-variable">@Id</span>
+    private long id;
+
+
+    <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">long</span> <span class="hljs-selector-tag">getId</span>() {
+        <span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">id</span>;
+    }
+
+}
+</code></pre>
+
+            <h2 id="6.4-mapeo-de-valores">6.4 Mapeo de valores</h2>
+
+            <p>
+              Cuando mapeamos una entidad, todos sus atributos son considerados
+              persistentes por defecto. Las reglas por defecto son:
+            </p>
+
+            <ul>
+              <li>
+                Si la propiedad es un tipo primitivo, un envoltorio de un tipo
+                primitivo (
+                <code>Integer</code>
+                ,
+                <code>Double</code>
+                , …),
+                <code>
+                  String, BigInteger, BigDecimal, java.util.Date,
+                  java.util.Calendar, java.sql.Date, java.sql .Time,
+                  java.sql.Timestamp, byte[], Byte[], char[],
+                </code>
+                o
+                <code>Character[]</code>
+                se persiste automáticamente con el tipo de dato SQL adecuado.
+              </li>
+              <li>
+                Si es
+                <code>java.io.Serializable</code>
+                , se almacena con su representación serializada (esto no será lo
+                que habitualmente deseemos).
+              </li>
+              <li>
+                Si usamos
+                <code>@Embeddable</code>
+                (lo estudiaremos después), también lo persiste.
+              </li>
+            </ul>
+
+            <p>
+              En otro caso,
+              <em>lanzará un error en la inicialización</em>
+              . Hibernate escoge, dependiendo del dialecto configurado, la mejor
+              correspondencia de tipos de dato en el RDBMS para los tipos Java
+              que hayamos usado.
+            </p>
+
+            <h3 id="6.4.1-anotación-`@column`">
+              6.4.1 Anotación
+              <code>@Column</code>
+            </h3>
+
+            <p>
+              Esta anotación, sobre una propiedad, nos permitirá indicar algunas
+              propiedades, entre las que se encuentran:
+            </p>
+
+            <ul>
+              <li>
+                <code>nullable</code>
+                : nos permite indicar si la columna mapeada puede o no almacenar
+                valores nulos. En la práctica, es como marcar el campo como
+                requerido.
+              </li>
+              <li>
+                <code>name</code>
+                : permite modificar el nombre por defecto que tendrá la columna
+                mapeada.
+              </li>
+              <li>
+                <code>insertable</code>
+                ,
+                <code>updatable</code>
+                : podemos modificar si la entidad upede ser insertada,
+                modificada, …
+              </li>
+              <li>
+                <code>length</code>
+                : nos permite definir el número de caracteres de la columna.
+              </li>
+            </ul>
+
+            <blockquote>
+              <p>
+                ¿Dónde anotar? ¿En las propiedades o en los getter?
+                <br />
+                Hibernate nos permite definir las anotaciones (
+                <code>@Id</code>
+                ,
+                <code>@Column</code>
+                , …) tanto sobre las propiedades como sobre los métodos getter (
+                <strong><em>nunca sobre los setter</em></strong>
+                ). La pauta la marca la anotación
+                <code>@Id</code>
+                . Allá donde usemos esta anotación, marcaremos la estrategia a
+                seguir.
+              </p>
+            </blockquote>
+
+            <h3 id="6.4.2-tipos-temporales">6.4.2 Tipos temporales</h3>
+
+            <p>
+              Los tipos de datos temporales, de fecha y hora, tienen un
+              tratamiento algo especial en Hibernate. Para un campo que contiene
+              este tipo de información, se añade la propiedad
+              <code>@Temporal</code>
+              .
+            </p>
+
+            <p>
+              Esta anotación la podemos usar con los tipos
+              <code>java.util.Date</code>
+              ,
+              <code>java.util.Calendar</code>
+              ,
+              <code>java.sql.Date</code>
+              ,
+              <code>java.sql.Time</code>
+              ,
+              <code>java.util.Timestamp</code>
+              . Hibernate también soporta los nuevos tipo de
+              <code>java.time</code>
+              disponibles en el JDK 8.
+            </p>
+
+            <p>
+              Como propiedad, podemos indicar que tipo de dato temporal vamos a
+              querer usar a través del atributo TemporalType, teniendo
+              disponibles
+              <code>DATE</code>
+              ,
+              <code>TIME</code>
+              ,
+              <code>TIMESTAMP</code>
+              .
+            </p>
+
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+<span class="hljs-variable">@Table</span>(name= <span class="hljs-string">"MY_ENT"</span>)
+public class MyEntity {
+
+    <span class="hljs-variable">@Id</span>
+    private long id;
+
+  <span class="hljs-variable">@Temporal</span>(TemporalType.TIMESTAMP)
+  private Date createdOn;
+
+  <span class="hljs-comment">//...</span>
+
+}
+</code></pre>
+
+            <blockquote>
+              <p>
+                Hibernate utiliza por defecto
+                <code>TemporalType.TIMESTAMP</code>
+                si no encuentra una anotación
+                <code>@Temporal</code>
+                sobre alguno de los tipos de datos definidos más arriba.
+              </p>
+            </blockquote>
+
+            <h2 id="6.5-tipos-_embebidos_">
+              6.5 Tipos
+              <em>embebidos</em>
+            </h2>
+
+            <p>
+              En ocasiones, nos puede interesar tratar un grupo de atributos
+              como si fueran uno solo. Un ejemplo clásico suele ser la dirección
+              (nombre de la vía, número, código postal, …). Para este tipo de
+              situaciones tenemos la posibilidad de covertir una clases en
+              <code>Embeddable</code>
+              . Veamoslo con un ejemplo:
+            </p>
+
+            <pre class="hljs typescript"><code class="java">
+<span class="hljs-meta">@Embeddable</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> Direccion {
+
+  <span class="hljs-meta">@Column</span>(nullable=<span class="hljs-literal">false</span>)
+  <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> via;
+
+  <span class="hljs-meta">@Column</span>(nullable=<span class="hljs-literal">false</span>, length = <span class="hljs-number">5</span>)
+  <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> codigoPostal;
+
+  <span class="hljs-meta">@Column</span>(nullable=<span class="hljs-literal">false</span>)
+  <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> poblacion;
+
+  <span class="hljs-meta">@Column</span>(nullable=<span class="hljs-literal">false</span>)
+  <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> provincia;
+
+  <span class="hljs-comment">//...</span>
+
+
+}
+</code></pre>
+
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+<span class="hljs-variable">@Table</span>(name=<span class="hljs-string">"USERCONEMBEDD"</span>)
+public class User {
+
+    <span class="hljs-variable">@Id</span>
+    <span class="hljs-variable">@GeneratedValue</span>(strategy=GenerationType.AUTO)
+    private long id;
+
+    <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">String</span> <span class="hljs-selector-tag">name</span>;
+
+  @<span class="hljs-selector-tag">Temporal</span>(TemporalType.DATE)
+    <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">Date</span> <span class="hljs-selector-tag">birthDate</span>;
+
+  <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">Direccion</span> <span class="hljs-selector-tag">address</span>;
+
+    <span class="hljs-comment">//...</span>
+}
+</code></pre>
+
+            <p>
+              De esta forma, Hibernate detecta que el campo
+              <code>Direccion</code>
+              es una clase
+              <code>Embeddable</code>
+              , y mapea las columnas a la tabla
+              <code>USER</code>
+              .
+            </p>
+
+            <h3 id="6.5.1-sobrescritura-con-`@embedded`">
+              6.5.1 Sobrescritura con
+              <code>@Embedded</code>
+            </h3>
+
+            <p>
+              ¿Qué pasaría si quisiéramos añadir dos direcciones a un usuario?
+              Hibernate nos lanzará un error, indicando que no se soportan
+              columnas con nombre repetido.
+            </p>
+
+            <p>
+              La solución la podemos aportar sobrescribiendo los atributos de la
+              clase embebida, para que tengan otro nombre (o incluso otras
+              propiedades)
+            </p>
+
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+<span class="hljs-variable">@Table</span>(name=<span class="hljs-string">"USERCONEMBEDD"</span>)
+public class User {
+
+    <span class="hljs-variable">@Id</span>
+    <span class="hljs-variable">@GeneratedValue</span>(strategy=GenerationType.AUTO)
+    private long id;
+
+  <span class="hljs-comment">//Otros atributos</span>
+
+    <span class="hljs-variable">@Embedded</span>
+    <span class="hljs-variable">@AttributeOverrides</span>({
+        <span class="hljs-variable">@AttributeOverride</span>(name = <span class="hljs-string">"via"</span>, column = <span class="hljs-variable">@Column</span>(name=<span class="hljs-string">"VIA_FACTURACION"</span>)),
+        <span class="hljs-variable">@AttributeOverride</span>(name = <span class="hljs-string">"codigoPostal"</span>, column = <span class="hljs-variable">@Column</span>(name=<span class="hljs-string">"CODIGOPOSTAL_FACTURACION"</span>, length=<span class="hljs-number">5</span>)),
+        <span class="hljs-variable">@AttributeOverride</span>(name = <span class="hljs-string">"poblacion"</span>, column = <span class="hljs-variable">@Column</span>(name=<span class="hljs-string">"POBLACION_FACTURACION"</span>)),
+        <span class="hljs-variable">@AttributeOverride</span>(name = <span class="hljs-string">"provincia"</span>, column = <span class="hljs-variable">@Column</span>(name=<span class="hljs-string">"PROVINCIA_FACTURACION"</span>))
+
+    })
+    private Direccion billingAddress;
+
+
+  <span class="hljs-comment">//...</span>
+</code></pre>
+
+            <p>
+              La anotación
+              <code>@Embedded</code>
+              es util cuando queremos mapear otras clases. El atributo
+              <code>@AttributeOverrides</code>
+              selecciona las propiedades que serán sobrescritas. El atributo
+              <code>@AttributeOverride</code>
+              indica el cambio que va a haber en un determinado atributo.
+            </p>
+
+            <h2 id="6.6-ciclo-de-vida-de-una-entidades">
+              6.6 Ciclo de vida de una entidades
+            </h2>
+
+            <p>
+              Si bien profundizaremos sobre este apartado en lecciones
+              posteriores, no está de más que vayamos conociendo los diferentes
+              estados en los que se puede encontrar una entidad JPA.
+            </p>
+
+            <ul>
+              <li>
+                <code>transient</code>
+                (nueva): la entidad acaba de ser creada (posiblemente con el
+                operador
+                <code>new</code>
+                ) y aun no está asociada al contexto de persistencia. No tiene
+                representación en la base de datos.
+              </li>
+              <li>
+                <code>managed</code>
+                ,
+                <code>persistent</code>
+                : la entidad tiene un identificador y está asociada al contexto
+                de persistencia. Puede estar almacenada en la base de datos, o
+                aun no.
+              </li>
+              <li>
+                <code>detached</code>
+                : la entidad tiene un identificador, pero no está asociada al
+                contexto de persistencia (normalmente), porque hemos cerrado el
+                contexto de persistencia.
+              </li>
+              <li>
+                <code>removed</code>
+                : la entidad tiene un identificador y está asociada al contexto
+                de persistencia, pero este tiene programada su eliminación.
+              </li>
+            </ul>
+
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                alt="Ciclo de vida de una entidad"
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/19a7dc5a-8b06-4e95-b262-567e9a54dd14.jpg"
+              />
+            </p>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

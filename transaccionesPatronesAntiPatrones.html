@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="16.1-introducción">
+              <a name="16.1-introducción" href="#16.1-introducción"></a>
+              16.1 Introducción
+            </h2>
+            <p>
+              Cualquier RDBMS define una serie de operaciones para manejar los
+              datos mediante DML (
+              <em>Data Manipulation Language</em>
+              ). Normalmente, estas operaciones son
+              <em>INSERT</em>
+              ,
+              <em>UPDATE</em>
+              y
+              <em>DELETE</em>
+              , y trabajan a nivel de fila. Sin embargo, a la hora de programar
+              una aplicación, nos encontramos con que determinadas operaciones
+              de la lógica de negocio deberían ser tratadas como atómicas
+              (indivixsibles), de forma que
+              <strong>o se hacen completas, o no deben hacerse</strong>
+              . Los RDBMS suelen permitir realizar estos conjuntos de
+              operaciones atómicas a través de transacciones.
+            </p>
+            <p>
+              Supongamos que un cliente de un banco quiere realizar un traspaso
+              de dinero a otro cliente de ese mismo banco. Esta operación (muy
+              simplificada) consiste en actualizar el saldo de emisor,
+              decrementándolo; y actualizar el saldo de receptor, aumentándolo.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/f974e756-f644-4078-a29e-d0632643e2b1.JPG"
+                alt="Operación de traspaso"
+              />
+            </p>
+            <p>
+              A nivel de base de datos, esta operación debería realizarse con
+              dos sentencias UPDATE; sin embargo, debería tratarse de forma
+              <strong>atómica</strong>
+              . O se ejecutan las dos sentencias, o no se ejecuta ninguna
+              (imaginad la cara de Pepe si le restaran saldo en su cuenta, y la
+              cara de Juan al no recibir su transferencia).
+            </p>
+            <p>
+              Para confirmar una transacción, lo hacemos mediante la instrucción
+              SQL
+              <code>COMMIT</code>
+              .
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/89678aa0-d771-4ce9-a37e-7b2ef3f648a1.JPG"
+                alt="Transacción"
+              />
+            </p>
+            <p>
+              Si durante el transcurso de alguna de estas dos operaciones
+              hubiera algún problema, deberíamos deshacer los cambios
+              realizados. A esta operación se le conoce como
+              <code>ROLLBACK</code>
+              .
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/ab4cb9a5-ed17-4a11-a05f-caac0525299f.jpg"
+                alt="Transacción"
+              />
+            </p>
+            <p>
+              Hibernate y JPA nos permiten, como no podía ser de otra manera, el
+              manejo de transacciones, para poder gestionar todo esto desde
+              nuestra aplicación.
+            </p>
+            <h2 id="16.2-transacciones-_resource-local_-o-_jta_">
+              <a
+                name="16.2-transacciones-_resource-local_-o-_jta_"
+                href="#16.2-transacciones-_resource-local_-o-_jta_"
+              ></a>
+              16.2 Transacciones
+              <em>Resource Local</em>
+              o
+              <em>JTA</em>
+            </h2>
+            <p>
+              <em>Resource Local</em>
+              es un tipo de transaccionalidad mediante la cual delegamos la
+              responsabilidad de realizar las transacciones en el programador.
+              Las transacciones se obtienen a partir del
+              <em>EntityManager</em>
+              , y son de tipo
+              <code>javax.persistence.EntityTransaction</code>
+              . Podemos manejar las transacciones a través de los métodos
+              <code>begin()</code>
+              ,
+              <code>commit()</code>
+              y
+              <code>rollback()</code>
+              . Su uso está orientado sobre todo a aplicaciones de escritorio o
+              que no se ejecutan en un servidor de aplicaciones.
+            </p>
+            <p>
+              <em>JTA</em>
+              , en cambio, es parte de la especificación
+              <em>Java EE</em>
+              . Se trata de un estándar (que debe ser implementado por el
+              servidor de aplicaciones que utilicemos), que centraliza la
+              gestión de las transacciones. Utiliza el tipo
+              <code>javax.transaction.UserTransaction</code>
+              que también tiene los métodos
+              <code>begin()</code>
+              ,
+              <code>commit()</code>
+              y
+              <code>rollback()</code>
+              . Su uso está orientado a las aplicaciones que se ejecutan en un
+              servidor de aplicaciones, como las aplicaciones Web MVC. La
+              configuración de JPA, Hibernate y JTA es muy cómoda cuando
+              trabajamos con otros frameworks, como puede ser Spring Web MVC y
+              Spring Boot, quien realiza la configuración por nosotros.
+            </p>
+            <p>
+              A continuación podemos ver un ejemplo de control de una
+              transacción con
+              <em>Resource Local</em>
+              :
+            </p>
+            <pre
+              class="hljs pony"
+            ><code class="java">@<span class="hljs-type">Entity</span>
+        public <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserAccount</span> {</span>
+        
+            @<span class="hljs-type">Id</span>
+            private int id;
+        
+            @<span class="hljs-type">Column</span>
+            private <span class="hljs-type">String</span> name;
+        
+            @<span class="hljs-type">Column</span>
+            private double balance;
+        
+        
+            public <span class="hljs-type">UserAccount</span>() {
+        
+            }
+        
+          <span class="hljs-comment">//Getters y Setters</span>
+        
+        }
+        
+        public <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> {</span>
+        
+            static <span class="hljs-type">EntityManagerFactory</span> emf;
+        
+            static <span class="hljs-type">EntityManager</span> em;
+        
+            public static void main(<span class="hljs-type">String</span>[] args) {
+        
+                <span class="hljs-comment">// Configuramos el EMF a través de la unidad de persistencia</span>
+                emf = <span class="hljs-type">Persistence</span>.createEntityManagerFactory(<span class="hljs-string">"Transacciones"</span>);
+        
+                <span class="hljs-comment">// Generamos un EntityManager</span>
+                em = emf.createEntityManager();
+        
+                <span class="hljs-comment">// Construimos un objeto de tipo User</span>
+                <span class="hljs-type">UserAccount</span> user1 = <span class="hljs-function"><span class="hljs-keyword">new</span> <span class="hljs-title">UserAccount</span>();
+                <span class="hljs-title">user1</span>.<span class="hljs-title">setId</span>(<span class="hljs-number">1</span>);
+                <span class="hljs-title">user1</span>.<span class="hljs-title">setName</span>("<span class="hljs-type">Pepe</span>");
+                <span class="hljs-title">user1</span>.<span class="hljs-title">setBalance</span>(<span class="hljs-number">500</span>);
+        
+                <span class="hljs-title">insertUserAccount</span>(user1);
+        
+                <span class="hljs-comment">// Construimos otro objeto de tipo User</span>
+                <span class="hljs-title">UserAccount</span> <span class="hljs-title">user2</span> = <span class="hljs-title">new</span> <span class="hljs-title">UserAccount</span>();
+                <span class="hljs-title">user2</span>.<span class="hljs-title">setId</span>(<span class="hljs-number">2</span>);
+                <span class="hljs-title">user2</span>.<span class="hljs-title">setName</span>("<span class="hljs-type">Juan</span>");
+                <span class="hljs-title">user2</span>.<span class="hljs-title">setBalance</span>(<span class="hljs-number">300</span>);
+        
+                <span class="hljs-title">insertUserAccount</span>(user2);
+        
+                <span class="hljs-title">makeTransfer</span>(user1, user2, <span class="hljs-number">100.0</span>);
+        
+        
+                <span class="hljs-comment">// Cerramos el EntityManager</span>
+                <span class="hljs-title">em</span>.<span class="hljs-title">close</span>();
+                <span class="hljs-title">emf</span>.<span class="hljs-title">close</span>();
+        
+            }
+        
+            <span class="hljs-title">public</span> <span class="hljs-title">static</span> <span class="hljs-title">void</span> <span class="hljs-title">insertUserAccount</span>(<span class="hljs-type">UserAccount</span> userAccount) {
+                <span class="hljs-title">try</span> {
+                    <span class="hljs-comment">//Iniciamos una transacción</span>
+                    <span class="hljs-title">em</span>.<span class="hljs-title">getTransaction</span>().<span class="hljs-title">begin</span>();
+                    <span class="hljs-comment">//Persistimos los datos</span>
+                    <span class="hljs-title">em</span>.<span class="hljs-title">persist</span>(userAccount);
+                    <span class="hljs-comment">//Commiteamos la transacción</span>
+                    <span class="hljs-title">em</span>.<span class="hljs-title">getTransaction</span>().<span class="hljs-title">commit</span>();
+                    <span class="hljs-title">System</span>.<span class="hljs-title">out</span>.<span class="hljs-title">println</span>("<span class="hljs-type">El</span> objeto ha sido dado de alta correctamente. <span class="hljs-type">Muchas</span> gracias.");
+                } <span class="hljs-title">catch</span>(<span class="hljs-type">Exception</span> e) {
+                    <span class="hljs-title">System</span>.<span class="hljs-title">out</span>.<span class="hljs-title">println</span>("<span class="hljs-type">El</span> objeto no ha sido dado de alta correctamente. <span class="hljs-type">Disculpe</span> las molestias");
+                    <span class="hljs-title">System</span>.<span class="hljs-title">err</span>.<span class="hljs-title">println</span>(e.getMessage());
+                    <span class="hljs-title">if</span> (em.getTransaction().<span class="hljs-title">isActive</span>()) {
+                        <span class="hljs-title">em</span>.<span class="hljs-title">getTransaction</span>().<span class="hljs-title">rollback</span>();
+                    }
+                }
+        
+            }
+        
+        
+        
+            <span class="hljs-title">public</span> <span class="hljs-title">static</span> <span class="hljs-title">void</span> <span class="hljs-title">makeTransfer</span>(<span class="hljs-type">UserAccount</span> origen, <span class="hljs-type">UserAccount</span> destino, double cantidad) {
+                <span class="hljs-title">try</span> {
+                    <span class="hljs-comment">//Iniciamos una transacción</span>
+                    <span class="hljs-title">em</span>.<span class="hljs-title">getTransaction</span>().<span class="hljs-title">begin</span>();
+        
+                    <span class="hljs-title">origen</span>.<span class="hljs-title">setBalance</span>(origen.getBalance() - <span class="hljs-title">cantidad</span>);
+                    <span class="hljs-title">destino</span>.<span class="hljs-title">setBalance</span>(destino.getBalance() + <span class="hljs-title">cantidad</span>);
+        
+                    <span class="hljs-title">em</span>.<span class="hljs-title">persist</span>(origen);
+                    <span class="hljs-title">em</span>.<span class="hljs-title">persist</span>(destino);
+        
+                    <span class="hljs-comment">//Commiteamos la transacción</span>
+                    <span class="hljs-title">em</span>.<span class="hljs-title">getTransaction</span>().<span class="hljs-title">commit</span>();
+        
+                    <span class="hljs-title">System</span>.<span class="hljs-title">out</span>.<span class="hljs-title">println</span>("<span class="hljs-type">El</span> traspaso ha sido realizado correctamente. <span class="hljs-type">Muchas</span> gracias.");
+                } <span class="hljs-title">catch</span>(<span class="hljs-type">Exception</span> e) {
+                    <span class="hljs-title">System</span>.<span class="hljs-title">out</span>.<span class="hljs-title">println</span>("<span class="hljs-type">El</span> traspaso no ha sido realizado correctamente. <span class="hljs-type">Disculpe</span> las molestias");
+                    <span class="hljs-title">System</span>.<span class="hljs-title">err</span>.<span class="hljs-title">println</span>(e.getMessage());
+                    <span class="hljs-title">if</span> (em.getTransaction().<span class="hljs-title">isActive</span>()) {
+                        <span class="hljs-title">em</span>.<span class="hljs-title">getTransaction</span>().<span class="hljs-title">rollback</span>();
+                    }
+                }
+            }
+        
+        }
+        </span></code></pre>
+            <h2 id="16.3-patrones-y-antipatrones">
+              <a
+                name="16.3-patrones-y-antipatrones"
+                href="#16.3-patrones-y-antipatrones"
+              ></a>
+              16.3 Patrones y antipatrones
+            </h2>
+            <h3 id="16.3.1-sesión-por-operación-(***antipatrón***)">
+              <a
+                name="16.3.1-sesión-por-operación-(***antipatrón***)"
+                href="#16.3.1-sesión-por-operación-(***antipatrón***)"
+              ></a>
+              16.3.1 Sesión-por-operación (
+              <strong><em>antipatrón</em></strong>
+              )
+            </h3>
+            <p>
+              Abrir una sesión (
+              <em>Session</em>
+              en Hibernate nativo, un
+              <em>EntityManager</em>
+              en JPA) para cada llamada a la base de datos en un solo hilo es un
+              antipatrón. Se deben agrupar las llamadas a la base de datos en
+              secuencias organizadas de sentencias. En ese sentido, tampoco es
+              positivo activar el
+              <em>autocommit</em>
+              . Las transacciones no deben ser optativas; toda comunicación con
+              el RDBMS debe estar enmarcada dentro de una transacción.
+            </p>
+            <h3 id="16.3.2-sesión-por-petición-(***patrón***)">
+              <a
+                name="16.3.2-sesión-por-petición-(***patrón***)"
+                href="#16.3.2-sesión-por-petición-(***patrón***)"
+              ></a>
+              16.3.2 Sesión-por-petición (
+              <strong><em>patrón</em></strong>
+              )
+            </h3>
+            <p>
+              Se trata del patrón más habitual. El término
+              <em>petición</em>
+              hace referencia aquí a un sistema que reacciona a una serie de
+              peticiones desde el cliente o usuario. Un gran ejemplo son las
+              aplicaciones web, pero no son las únicas. En este modelo, cuando
+              se recibe una petición en el servidor, se abre una sesión, se
+              realizan todas las operaciones y, una vez que se han finalizado
+              todas, se cierra la sesión y se envía la respuesta al cliente. De
+              esta forma, hemos utilizado una sola transacción. Este patrón es
+              la medida perfecta para muchas aplicaciones. Comprobaremos su
+              utilización en lecciones posteriores en el ejemplo de JPA y
+              Spring.
+            </p>
+            <h3 id="16.3.3-conversaciones-_largas_-(***patrón***)">
+              <a
+                name="16.3.3-conversaciones-_largas_-(***patrón***)"
+                href="#16.3.3-conversaciones-_largas_-(***patrón***)"
+              ></a>
+              16.3.3 Conversaciones
+              <em>largas</em>
+              (
+              <strong><em>patrón</em></strong>
+              )
+            </h3>
+            <p>
+              El patrón sesión-por-petición no es la única forma de diseñar
+              unidades de trabajo. Muchos procesos empresariales requieren de
+              una serie completa de interacciones con el usuario intercaladas
+              con accesos a la base de datos. En aplicaciones empresariales o
+              web no es aceptable que una transacción de la base de datos
+              abarque la interacción de un usuario. Considere el siguiente
+              ejemplo:
+            </p>
+            <p>
+              Se abre la primera pantalla de un diálogo. Los datos que ve el
+              usuario han sido cargados en una
+              <em>Session</em>
+              (
+              <em>EntityManager</em>
+              ) en particular y en una transacción de la base de datos. El
+              usuario es libre de modificar los objetos. El usuario hace click
+              en “Guardar” después de 5 minutos y espera que sus modificaciones
+              se hagan persistentes. También espera que él sea la única persona
+              editando esta información y que no ocurra ningún conflicto en la
+              modificación. Desde el punto de vista del usuario, llamamos a esta
+              unidad de trabajo, una larga conversación o transacción de
+              aplicación. Hay muchas formas de implementar esto en su
+              aplicación.
+            </p>
+            <p>
+              Hibernate proporciona algunos mecanismos para implementar este
+              patrón:
+            </p>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Mecanismo</th>
+                    <th>Descripción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Versionado automático</td>
+                    <td>
+                      Hibernate puede realizar un control automático optimista
+                      de la concurrencia por nosotros. Puede detectar
+                      automáticamente (al final de la
+                      <em>conversación</em>
+                      ) si ha ocurrido una modificación durante el tiempo
+                      marcado.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Objetos separados</td>
+                    <td>
+                      Si decide usar el patrón sesión-por-petición, todas las
+                      instancias cargadas estarán en estado separado durante el
+                      tiempo
+                      <em>para pensar</em>
+                      del usuario. Hibernate le permite volver a unir los
+                      objetos y hacer persistentes las modificaciones. El patrón
+                      se llama sesión-por-petición-con-objetos-separados. Se usa
+                      el versionado automático para aislar las modificaciones
+                      simultáneas.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Sesión extendida</td>
+                    <td>
+                      La Session de Hibernate puede ser desconectada de la
+                      conexión JDBC subyacente después de que haya guardado la
+                      transacción de la base de datos y haya reconectado cuando
+                      ocurra una nueva petición del cliente. Este patrón se
+                      conoce como sesión-por-conversación y hace la re-unión
+                      innecesaria. Para aislar las modificaciones simultáneas se
+                      usa el versionado automático y usualmente no se permite
+                      que se limpie la Session automáticamente sino
+                      explícitamente.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              Todos estos mecanismos tienen ventajas y desventajas, algunas de
+              las cuales pueden ser evidenciadas en el siguiente apartado.
+            </p>
+            <h3 id="16.3.4-sesión-por-aplicación-(***antipatrón***)">
+              <a
+                name="16.3.4-sesión-por-aplicación-(***antipatrón***)"
+                href="#16.3.4-sesión-por-aplicación-(***antipatrón***)"
+              ></a>
+              16.3.4 Sesión-por-aplicación (
+              <strong><em>antipatrón</em></strong>
+              )
+            </h3>
+            <p>
+              La sesión-por-aplicación se considera un antipatrón. Los objetos
+              <em>Session</em>
+              o
+              <em>EntityManager</em>
+              no son
+              <em>thread-safe</em>
+              , por lo que si tenemos que utilizarlos en varios hilos de
+              ejecución diferentes, posiblemente observemos comportamientos
+              extraños. Además, Hibernate suele cerrar la sesión cuando sucede
+              una excepción, por lo que un problema para un usuario puntual
+              puede provocar la caída completa del sistema.
+            </p>
+            <h2 id="16.4-control-de-concurrencia">
+              <a
+                name="16.4-control-de-concurrencia"
+                href="#16.4-control-de-concurrencia"
+              ></a>
+              16.4 Control de concurrencia
+            </h2>
+            <p>
+              Las transacciones pueden conseguir que los usuarios tengan la
+              sensación de la que bases de datos es
+              <em>exclusivamente</em>
+              suya, ya que aislan a unos de otros. Esto se consigue mediante
+              diferentes mecanismos, como bloqueos de lectura y escritura, o
+              mecanismos más avanzados, como el MVCC (
+              <em>Multiversion concurrency control</em>
+              ).
+            </p>
+            <p>
+              Algunos problemas que se pueden presentar debidos a la
+              concurrencia son:
+            </p>
+            <ul>
+              <li>
+                Actualización perdida (
+                <em>lost update</em>
+                ).
+              </li>
+              <li>
+                Lectura sucia (
+                <em>dirty read</em>
+                )
+              </li>
+              <li>
+                Lectura no repetible (
+                <em>non repeteable read</em>
+                )
+              </li>
+              <li>
+                Lectura fantasma (
+                <em>phantom read</em>
+                )
+              </li>
+            </ul>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Problema y descripción</th>
+                    <th>Imagen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong>Actualización perdida</strong>
+                      <strong><em>(lost update)</em></strong>
+                      <br />
+                      Dos trx sin bloqueo actualizan los mismos datos. La trxB
+                      hace rollback y se pierden los datos de trxA
+                    </td>
+                    <td style="margin-left: 0px; margin-right: 0px;">
+                      <img
+                        class="img-responsive center-block"
+                        src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/32b2286d-eed8-44c2-bcd2-00e51e96796d.jpg"
+                        alt="Actualización perdida"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Lectura sucia</strong>
+                      <strong><em>(dirty read)</em></strong>
+                      <br />
+                      TrxA lee datos que luego desaparecen por rollback
+                    </td>
+                    <td style="margin-left: 0px; margin-right: 0px;">
+                      <img
+                        class="img-responsive center-block"
+                        src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/bffd6c6f-5a8b-45a0-a360-0b67fecc5d3f.jpg"
+                        alt="Lectura sucia"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Lectura no repetible</strong>
+                      <strong><em>(non repeteable read)</em></strong>
+                      <br />
+                      Durante txA txB es más rápida y modifica datos que vuelve
+                      a necesitar txA
+                    </td>
+                    <td style="margin-left: 0px; margin-right: 0px;">
+                      <img
+                        class="img-responsive center-block"
+                        src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/a790809b-5152-424a-a63a-7fc4e296ff33.JPG"
+                        alt="Lectura no repetible"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Lectura fantasma</strong>
+                      <strong><em>(phantom read)</em></strong>
+                      <br />
+                      Durante txA txB inserta (o modifica) nuevos datos que txA
+                      va a detectar más tarde repitiendo la consulta (u otra que
+                      depende de ellos)
+                    </td>
+                    <td style="margin-left: 0px; margin-right: 0px;">
+                      <img
+                        class="img-responsive center-block"
+                        src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/29e57738-2611-49ae-8814-0aa39c2052d2.JPG"
+                        alt="Lectura fantasma"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <h3 id="16.4.1-mecanismos-de-control-de-concurrencia-en-jpa">
+                <a
+                  name="16.4.1-mecanismos-de-control-de-concurrencia-en-jpa"
+                  href="#16.4.1-mecanismos-de-control-de-concurrencia-en-jpa"
+                ></a>
+                16.4.1 Mecanismos de control de concurrencia en JPA
+              </h3>
+              <p>
+                Existen dos grandes grupos: los optimistas y los pesimistas.
+              </p>
+              <p style="margin-left: 0px; margin-right: 0px;">
+                <img
+                  class="img-responsive center-block"
+                  src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-24/4ec8b013-6635-41cc-8416-86ef395fa8d2.jpg"
+                  alt="Optimista - Pesimista"
+                />
+              </p>
+              <h4 id="16.4.1.1-bloqueo-optimista-(_optimistic-locking_)">
+                <a
+                  name="16.4.1.1-bloqueo-optimista-(_optimistic-locking_)"
+                  href="#16.4.1.1-bloqueo-optimista-(_optimistic-locking_)"
+                ></a>
+                16.4.1.1 Bloqueo optimista (
+                <em>optimistic locking</em>
+                )
+              </h4>
+              <p>
+                JPA soporta optimistic locking mediante un campo versionado de
+                bloqueo, definido por la anotación
+                <code>@Version</code>
+                . Dicho campo se actualiza automáticamente por la implementación
+                JPA en cada actualización y debe ser conservado tal cual por la
+                aplicación. En el momento de la realización del merge(), si se
+                detecta un bloqueo o cambio, se lanza una excepción
+                OptimisticLockException.
+              </p>
+              <p>
+                La anotación se puede asociar a una varible numérica (
+                <em>long</em>
+                ) o a una fecha:
+              </p>
+              <pre
+                class="hljs d"
+              ><code class="java"><span class="hljs-keyword">@Version</span>
+        <span class="hljs-keyword">private</span> <span class="hljs-built_in">long</span> <span class="hljs-keyword">version</span>;
+        </code></pre>
+              <pre
+                class="hljs crmsh"
+              ><code class="java">@<span class="hljs-keyword">Version</span>
+        private <span class="hljs-keyword">Date</span> <span class="hljs-keyword">version</span>;
+        </code></pre>
+              <blockquote>
+                <p>
+                  Los campos anotados con
+                  <code>@Version</code>
+                  no llevan ni getters ni setters
+                </p>
+              </blockquote>
+              <h4 id="16.4.1.2-bloqueo-pesimista-(_pessimistic-locking_)">
+                <a
+                  name="16.4.1.2-bloqueo-pesimista-(_pessimistic-locking_)"
+                  href="#16.4.1.2-bloqueo-pesimista-(_pessimistic-locking_)"
+                ></a>
+                16.4.1.2 Bloqueo pesimista (
+                <em>pessimistic locking</em>
+                )
+              </h4>
+              <p>
+                Normalmente, Hibernate utiliza el mecanismo de aislamiento de
+                JDBC, y este a su vez el de la base de datos, dejando que sea
+                esta la que realice el trabajo. Sin embargo, hay ocasiones en
+                que
+                <em>usuarios avanzados</em>
+                desean poder obtener bloqueos exclusivos pesimistas.
+              </p>
+              <p>
+                A continuación listamos los que están disponibles, a través de
+                la enumeración
+                <code>LockModelType</code>
+                :
+              </p>
+              <ul>
+                <li>
+                  <code>READ</code>
+                  ,
+                  <code>OPTIMISTIC</code>
+                  : La versión de la entidad se comprueba al final de la
+                  transacción en curso.
+                </li>
+                <li>
+                  <code>WRITE</code>
+                  ,
+                  <code>OPTIMISTIC_FORCE_INCREMENT</code>
+                  : La versión de la entidad es incrementada automáticamente
+                  aunque la entidad no haya cambiado.
+                </li>
+                <li>
+                  <code>PESSIMISTIC_FORCE_INCREMENT</code>
+                  : La entidad es bloqueada de forma pesimista y su versión es
+                  incrementada automáticamente aunque no cambie.
+                </li>
+                <li>
+                  <code>PESSIMISTIC_READ</code>
+                  : La entidad es bloqueada de forma pesismista usando un
+                  bloqueo compartido (si el RDBMS lo permite).
+                </li>
+                <li>
+                  <code>PESSIMISTIC_WRITE</code>
+                  : La entidad es bloqueada usando un bloqueo explícito.
+                </li>
+              </ul>
+              <p>
+                Todos estos bloqueos se pueden usar en búsquedas mediante el
+                método
+                <code>find</code>
+                o a través de
+                <em>queries</em>
+                .
+              </p>
+            </div>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="13.1-colecciones">
+              <a name="13.1-colecciones" href="#13.1-colecciones"></a>
+              13.1 Colecciones
+            </h2>
+            <p>
+              Si bien ya hemos manejado colecciones de componentes a través de
+              las asociaciones (sobre todo las One-To-Many y las Many-To-Many),
+              Hibernate nos permite manejar colecciones, tanto de valores
+              básicos, tipos embebidos así como de otras entidades.
+            </p>
+            <h3 id="13.1.1-valores-básicos">
+              <a
+                name="13.1.1-valores-básicos"
+                href="#13.1.1-valores-básicos"
+              ></a>
+              13.1.1 Valores básicos
+            </h3>
+            <p>
+              Un elemento
+              <em>potente</em>
+              y a la vez fácil de implementar con JPA+Hibernate es la gestión de
+              colecciones de valores básicos. La anotación a través de la cual
+              indicaremos que se trata de una colección es
+              <code>@ElementCollection</code>
+              . Veamos los diferentes tipos de colecciones que soportan, ya que
+              sus características marcarán el tipo de colección a utilizar
+            </p>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Colección</th>
+                    <th>Características</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>java.util.Set</code></td>
+                    <td>
+                      Se inicializa con un
+                      <code>java.util.HashSet</code>
+                      . No se almacena el orden de los elementos, y no se
+                      permiten duplicados. Cualquier proveedor de JPA soporta
+                      este tipo.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>java.util.SortedSet</code></td>
+                    <td>
+                      Se inicializa con un
+                      <code>java.util.TreeSet</code>
+                      . Esta colección soporta el orden de elementos (esto
+                      ocurre en memoria), después de que Hibernate cargue los
+                      elementos. Se trata de una colección provista solo por
+                      Hibernate. Cualquier otro proveedor descartará los
+                      aspectos “sorted”.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>java.util.List</code></td>
+                    <td>
+                      Se inicializa con un
+                      <code>java.util.ArrayList</code>
+                      . Hibernate puede preservar la posición de cada elemento
+                      con un elemento índice adicional in la tabla de la base de
+                      datos. Cualquier proveedor de JPA soporta este tipo.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>java.util.Collection</code></td>
+                    <td>
+                      Se inicializa con un
+                      <code>java.util.ArrayList</code>
+                      . Esta colección tiene la semántica de un
+                      <em>bag</em>
+                      : son posibles los duplicados y no se almacena nada con
+                      respecto al orden. Cualquier proveedor de JPA soporta este
+                      tipo.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>java.util.Map</code></td>
+                    <td>
+                      Se inicializa con un
+                      <code>java.util.Hashmap</code>
+                      . En la base de datos se almacenan tanto la clave como el
+                      valor. Cualquier proveedor de JPA soporta este tipo.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>java.util.SortedMap</code></td>
+                    <td>
+                      Se inicializa con un
+                      <code>java.util.TreeMap</code>
+                      . Soporte la ordenación de elementos, si bien esta ocurre
+                      en memoria. Se trata de una colección provista solo por
+                      Hibernate. Cualquier otro proveedor descartará los
+                      aspectos “sorted”.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h4 id="13.1.1.1-_bags_">
+              <a name="13.1.1.1-_bags_" href="#13.1.1.1-_bags_"></a>
+              13.1.1.1
+              <em>Bags</em>
+            </h4>
+            <p>
+              Como hemos visto, se trata de la colección más simple. Soporta
+              duplicados y descarta cualquier opción de orden:
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-keyword">import</span> java.util.ArrayList;
+        <span class="hljs-keyword">import</span> java.util.Collection;
+        
+        <span class="hljs-comment">//Resto de import</span>
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@Table</span>(name=<span class="hljs-string">"PersonBag"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-meta">@ElementCollection</span>
+            <span class="hljs-meta">@CollectionTable</span>(name=<span class="hljs-string">"PhonesBags"</span>, joinColumns=<span class="hljs-meta">@JoinColumn</span>(name=<span class="hljs-string">"person_id"</span>))
+            <span class="hljs-comment">//@OrderColumn es ignorada en la práctica</span>
+            <span class="hljs-keyword">private</span> Collection&lt;String&gt; phones = <span class="hljs-keyword">new</span> ArrayList&lt;String&gt;();
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{ }
+        
+          <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> Collection&lt;String&gt; <span class="hljs-title">getPhones</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        
+        }
+        </code></pre>
+            <p>
+              Complementariamente a
+              <code>@ElementCollection</code>
+              podemos usar la anotación
+              <code>@CollectionTable</code>
+              , que nos va a permitir indicar el nombre de la tabla que se
+              genera para manejar la colección, así como el nombre de la columna
+              que hará las veces de clave externa.
+            </p>
+            <p>El ciclo de vida de sería algo parecido a esto:</p>
+            <pre
+              class="hljs routeros"
+            ><code class="java">Person person = new Person(<span class="hljs-string">"Pepe"</span>);
+        em.persist( person );
+        
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"954123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"600123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"954123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"600123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"954123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"600123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"954123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"600123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"954123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"600123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"954123456"</span>);
+        person.getPhones().<span class="hljs-builtin-name">add</span>(<span class="hljs-string">"600123456"</span>);
+        </code></pre>
+            <p>
+              Según la documentación de Hibernate, esta colección es muy
+              ineficiente en el borrado, ya que para eliminar un elemento, los
+              elimina todos y luego los vuelve a insertar :S
+            </p>
+            <h4 id="13.1.1.2-listas">
+              <a name="13.1.1.2-listas" href="#13.1.1.2-listas"></a>
+              13.1.1.2 Listas
+            </h4>
+            <p>
+              Suele ser un tipo de colección muy utilizada. A diferencia de los
+              <em>bags</em>
+              , nos permite añadir orden a los elementos, a través de la
+              anotación
+              <code>@OrderColumn</code>
+              .
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-keyword">import</span> java.util.ArrayList;
+        <span class="hljs-keyword">import</span> java.util.List;
+        
+        <span class="hljs-comment">//Resto de import</span>
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@Table</span>(name=<span class="hljs-string">"PersonList"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-meta">@ElementCollection</span>
+            <span class="hljs-meta">@CollectionTable</span>(name=<span class="hljs-string">"PhonesList"</span>, joinColumns=<span class="hljs-meta">@JoinColumn</span>(name=<span class="hljs-string">"person_id"</span>))
+            <span class="hljs-meta">@OrderColumn</span>(name=<span class="hljs-string">"order_id"</span>)
+            <span class="hljs-keyword">private</span> List&lt;String&gt; phones = <span class="hljs-keyword">new</span> ArrayList&lt;String&gt;();
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{ }
+        
+          <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;String&gt; <span class="hljs-title">getPhones</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        }
+        </code></pre>
+            <p>
+              Si revisamos el DDL que genera, podemos apreciar que tenemos la
+              columna para manejar el orden.
+            </p>
+            <pre
+              class="hljs sql"
+            ><code class="sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> PhonesList (
+          person_id <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          phones <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+          order_id <span class="hljs-built_in">integer</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          primary <span class="hljs-keyword">key</span> (person_id, order_id)
+        ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        </code></pre>
+            <h4 id="13.1.1.3-conjuntos-(_sets_)">
+              <a
+                name="13.1.1.3-conjuntos-(_sets_)"
+                href="#13.1.1.3-conjuntos-(_sets_)"
+              ></a>
+              13.1.1.3 Conjuntos (
+              <em>Sets</em>
+              )
+            </h4>
+            <p>
+              Como hemos apreciado en la introducción, se trata de una colección
+              que no soporta elementos duplicados.
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-keyword">import</span> java.util.HashSet;
+        <span class="hljs-keyword">import</span> java.util.Set;
+        
+        <span class="hljs-comment">//Resto de import</span>
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@Table</span>(name=<span class="hljs-string">"PersonSet"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-meta">@ElementCollection</span>
+            <span class="hljs-meta">@CollectionTable</span>(name=<span class="hljs-string">"PhonesSet"</span>, joinColumns=<span class="hljs-meta">@JoinColumn</span>(name=<span class="hljs-string">"person_id"</span>))
+            <span class="hljs-keyword">private</span> Set&lt;String&gt; phones = <span class="hljs-keyword">new</span> HashSet&lt;String&gt;();
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{ }
+        
+          <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> Set&lt;String&gt; <span class="hljs-title">getPhones</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        
+        }
+        </code></pre>
+            <p>
+              Si intentamos introducir un número duplicado, Hibernate lo
+              descartará de forma silenciosa, y no lo almacenará en la base de
+              datos.
+            </p>
+            <pre
+              class="hljs pony"
+            ><code class="java"><span class="hljs-type">Person</span> person = <span class="hljs-function"><span class="hljs-keyword">new</span> <span class="hljs-title">Person</span>("<span class="hljs-type">Pepe</span>");
+        <span class="hljs-title">em</span>.<span class="hljs-title">persist</span>( person );
+        
+        <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>("<span class="hljs-number">954123456</span>");
+        <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>("<span class="hljs-number">600123456</span>");
+        <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>("<span class="hljs-number">954123456</span>"); <span class="hljs-comment">//No se almacenará, puesto que está repetido</span>
+        </span></code></pre>
+            <h4 id="13.1.1.4-colecciones-_key,value_-(_maps_)">
+              <a
+                name="13.1.1.4-colecciones-_key,value_-(_maps_)"
+                href="#13.1.1.4-colecciones-_key,value_-(_maps_)"
+              ></a>
+              13.1.1.4 Colecciones
+              <em>key,value</em>
+              (
+              <em>Maps</em>
+              )
+            </h4>
+            <p>
+              Las colecciones clave,valor son un tipo de colección especial,
+              conocidas en ocasiones como
+              <em>diccionarios</em>
+              , y permiten asociar a un valor, llamado clave, otro elemento. La
+              búsqueda en base a la clave tiene una gran eficiencia. Supongamos
+              que queremos añadir a nuestra lista de teléfonos, a que lugar
+              corresponde el número (casa, trabajo, …)
+            </p>
+            <pre
+              class="hljs typescript"
+            ><code class="java"><span class="hljs-keyword">import</span> java.util.HashMap;
+        <span class="hljs-keyword">import</span> java.util.Map;
+        
+        <span class="hljs-comment">//Resto de import</span>
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@Table</span>(name=<span class="hljs-string">"PersonMap"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> Person {
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> long id;
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> name;
+        
+            <span class="hljs-meta">@ElementCollection</span>
+            <span class="hljs-meta">@CollectionTable</span>(name=<span class="hljs-string">"PhonesMap"</span>, joinColumns=<span class="hljs-meta">@JoinColumn</span>(name=<span class="hljs-string">"person_id"</span>))
+            <span class="hljs-keyword">private</span> Map&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">String</span>&gt; phones = <span class="hljs-keyword">new</span> HashMap&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">String</span>&gt;();
+        
+            <span class="hljs-keyword">public</span> Person() { }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-keyword">public</span> Map&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">String</span>&gt; getPhones() {
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        
+        }
+        </code></pre>
+            <p>El ciclo de vida de inserción poría ser como sigue:</p>
+            <pre
+              class="hljs mipsasm"
+            ><code class="java">Person person = new Person(<span class="hljs-string">"Pepe"</span>)<span class="hljs-comment">;</span>
+        em.persist( person )<span class="hljs-comment">;</span>
+        
+        person.getPhones().put(<span class="hljs-string">"954123456"</span>, <span class="hljs-string">"Trabajo"</span>)<span class="hljs-comment">;</span>
+        person.getPhones().put(<span class="hljs-string">"600123456"</span>, <span class="hljs-string">"Movil"</span>)<span class="hljs-comment">;</span>
+        person.getPhones().put(<span class="hljs-string">"913456789"</span>, <span class="hljs-string">"Casa"</span>)<span class="hljs-comment">;</span>
+        </code></pre>
+            <h4 id="13.1.1.4-conjuntos-ordenados-(_sortedsets_)">
+              <a
+                name="13.1.1.4-conjuntos-ordenados-(_sortedsets_)"
+                href="#13.1.1.4-conjuntos-ordenados-(_sortedsets_)"
+              ></a>
+              13.1.1.4 Conjuntos ordenados (
+              <em>SortedSets</em>
+              )
+            </h4>
+            <p>
+              Como decíamos más arriba, se trata de un tipo de colección que no
+              es estándar, sino que es propia de Hibernate.
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-keyword">import</span> java.util.SortedSet;
+        <span class="hljs-keyword">import</span> java.util.TreeSet;
+        
+        <span class="hljs-comment">//Resto de import</span>
+        
+        <span class="hljs-keyword">import</span> org.hibernate.annotations.SortNatural;
+        
+        <span class="hljs-meta">@Entity</span>(name=<span class="hljs-string">"PersonSortedSet"</span>)
+        <span class="hljs-meta">@Table</span>(name=<span class="hljs-string">"PersonSortedSet"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-meta">@ElementCollection</span>
+            <span class="hljs-meta">@CollectionTable</span>(name=<span class="hljs-string">"PhonesSortedSet"</span>, joinColumns=<span class="hljs-meta">@JoinColumn</span>(name=<span class="hljs-string">"person_id"</span>))
+            <span class="hljs-meta">@SortNatural</span>
+            <span class="hljs-keyword">private</span> SortedSet&lt;String&gt; phones = <span class="hljs-keyword">new</span> TreeSet&lt;String&gt;();
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> SortedSet&lt;String&gt; <span class="hljs-title">getPhones</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        
+        }
+        </code></pre>
+            <p>
+              La anotación
+              <code>@SortNatural</code>
+              , que es propia de Hibernate, nos permite indicar el tipo de orden
+              que se aplicará. Esta ordenación se realiza
+              <strong>en memoria</strong>
+              , y no afecta a como están almacenados los datos.
+            </p>
+            <pre
+              class="hljs pony"
+            ><code class="java"><span class="hljs-comment">//Iniciamos una transacción</span>
+        em.getTransaction().begin();
+        
+        <span class="hljs-type">Person</span> person = <span class="hljs-function"><span class="hljs-keyword">new</span> <span class="hljs-title">Person</span>("<span class="hljs-type">Pepe</span>");
+        <span class="hljs-title">em</span>.<span class="hljs-title">persist</span>( person );
+        
+        <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>("<span class="hljs-number">954123456</span>");
+        <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>("<span class="hljs-number">600123456</span>");
+        <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>("<span class="hljs-number">954123456</span>"); <span class="hljs-comment">//No se almacenará, puesto que está repetido        </span>
+        
+        
+        <span class="hljs-comment">//Commiteamos la transacción</span>
+        <span class="hljs-title">em</span>.<span class="hljs-title">getTransaction</span>().<span class="hljs-title">commit</span>();
+        
+        <span class="hljs-title">System</span>.<span class="hljs-title">out</span>.<span class="hljs-title">println</span>("<span class="hljs-type">Name</span>: " + person.getName());
+        <span class="hljs-title">for</span> (<span class="hljs-type">String</span> phone : person.getPhones()) {
+            <span class="hljs-title">System</span>.<span class="hljs-title">out</span>.<span class="hljs-title">println</span>("<span class="hljs-type">Phone</span>: " + phone);
+        }
+        </span></code></pre>
+            <p>
+              Al imprimir por consola, podemos apreciar que aparecen los
+              teléfono ordenados.
+            </p>
+            <pre
+              class="hljs avrasm"
+            ><code><span class="hljs-symbol">Name:</span> Pepe
+        <span class="hljs-symbol">Phone:</span> <span class="hljs-number">600123456</span>
+        <span class="hljs-symbol">Phone:</span> <span class="hljs-number">954123456</span>
+        </code></pre>
+            <h3 id="13.1.2-tipos-embebidos">
+              <a
+                name="13.1.2-tipos-embebidos"
+                href="#13.1.2-tipos-embebidos"
+              ></a>
+              13.1.2 Tipos embebidos
+            </h3>
+            <p>
+              Las colecciones con tipos embebidos se manejan de la misma forma
+              que con los tipos básicos. Veamos un ejemplo de manejo de una
+              lista.
+            </p>
+            <pre
+              class="hljs typescript"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> Person {
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> long id;
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> name;
+        
+            <span class="hljs-meta">@ElementCollection</span>
+            <span class="hljs-keyword">private</span> List&lt;Phone&gt; phones = <span class="hljs-keyword">new</span> ArrayList&lt;Phone&gt;();
+        
+            <span class="hljs-keyword">public</span> Person() { }
+        
+            <span class="hljs-keyword">public</span> Person(<span class="hljs-built_in">String</span> name) {
+                <span class="hljs-keyword">this</span>.name = name;
+            }
+        
+            <span class="hljs-keyword">public</span> long getId() {
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+            <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> setId(long id) {
+                <span class="hljs-keyword">this</span>.id = id;
+            }
+        
+            <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> getName() {
+                <span class="hljs-keyword">return</span> name;
+            }
+        
+            <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> setName(<span class="hljs-built_in">String</span> name) {
+                <span class="hljs-keyword">this</span>.name = name;
+            }
+        
+            <span class="hljs-keyword">public</span> List&lt;Phone&gt; getPhones() {
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        
+        }
+        
+        
+        <span class="hljs-meta">@Embeddable</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> Phone {
+        
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> <span class="hljs-keyword">type</span>;
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> <span class="hljs-built_in">number</span>;
+        
+        
+        
+            <span class="hljs-keyword">public</span> Phone() { }
+        
+            <span class="hljs-keyword">public</span> Phone(<span class="hljs-built_in">String</span> <span class="hljs-keyword">type</span>, <span class="hljs-built_in">String</span> <span class="hljs-built_in">number</span>) {
+                <span class="hljs-keyword">this</span>.type = <span class="hljs-keyword">type</span>;
+                <span class="hljs-keyword">this</span>.number = <span class="hljs-built_in">number</span>;
+            }
+        
+            <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> getNumber() {
+                <span class="hljs-keyword">return</span> <span class="hljs-built_in">number</span>;
+            }
+        
+            <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> getType() {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">type</span>;
+            }
+        
+        
+        }
+        </code></pre>
+            <p>
+              La lógica para gestionar el ciclo de vida es la misma, partiendo
+              siempre de la entidad
+              <code>Person</code>
+              :
+            </p>
+            <pre
+              class="hljs haxe"
+            ><code class="java">Person person = <span class="hljs-keyword">new</span> <span class="hljs-type">Person</span>(<span class="hljs-string">"Pepe"</span>);
+        em.persist( person );
+        
+        person.getPhones().add(<span class="hljs-keyword">new</span> <span class="hljs-type">Phone</span>(<span class="hljs-string">"Fijo"</span>, <span class="hljs-string">"954123456"</span>));
+        person.getPhones().add(<span class="hljs-keyword">new</span> <span class="hljs-type">Phone</span>(<span class="hljs-string">"Móvil"</span>, <span class="hljs-string">"612345678"</span>));
+        </code></pre>
+            <h3 id="13.1.3-colecciones-de-entidades">
+              <a
+                name="13.1.3-colecciones-de-entidades"
+                href="#13.1.3-colecciones-de-entidades"
+              ></a>
+              13.1.3 Colecciones de entidades
+            </h3>
+            <p>
+              En realidad, ya hemos usado colecciones de entidades, al trabajar
+              con las asociaciones
+              <code>@OneToMany</code>
+              y
+              <code>@ManyToMany</code>
+              . En la práctica, podemos usar cualquiera de las colecciones que
+              hemos tratado en los apartados anteriores. Para aportar en este
+              apartado, trabajaremos con una lista ordenada, que nos permita ver
+              la funcionalidad de las anotaciones
+              <code>@OrderBy</code>
+              y
+              <code>@OrderColumn</code>
+              .
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-meta">@OneToMany</span>(cascade = CascadeType.ALL)
+            <span class="hljs-meta">@OrderBy</span>(<span class="hljs-string">"number"</span>)
+            <span class="hljs-keyword">private</span> List&lt;Phone&gt; phones = <span class="hljs-keyword">new</span> ArrayList&lt;Phone&gt;();
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Phone&gt; <span class="hljs-title">getPhones</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        
+        }
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Phone</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String type;
+        
+            <span class="hljs-keyword">private</span> String number;
+        
+        
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Phone</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+        
+        }
+        </code></pre>
+            <p>
+              La lógica de gestión es similar a las anteriores ocasiones. En
+              este caso, tras insertar, forzamos el refresco de los datos, para
+              que fuerce la consulta a la base de datos:
+            </p>
+            <pre
+              class="hljs cs"
+            ><code class="java">Person person = <span class="hljs-keyword">new</span> Person(<span class="hljs-string">"Pepe"</span>);
+        em.persist( person );
+        
+        person.getPhones().<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> Phone(<span class="hljs-string">"Fijo"</span>, <span class="hljs-string">"954123456"</span>));
+        person.getPhones().<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> Phone(<span class="hljs-string">"Móvil"</span>, <span class="hljs-string">"612345678"</span>));
+        
+        em.flush();
+        
+        <span class="hljs-comment">//Forzamos el volver a leer de la base de datos</span>
+        em.refresh(person);
+        
+        
+        System.<span class="hljs-keyword">out</span>.println(<span class="hljs-string">"Name: "</span> + person.getName());
+        <span class="hljs-keyword">for</span> (Phone phone : person.getPhones()) {
+            System.<span class="hljs-keyword">out</span>.println(<span class="hljs-string">"Phone: "</span> + phone.getNumber() + <span class="hljs-string">" ("</span> + phone.getType()+ <span class="hljs-string">")"</span>);
+        }
+        </code></pre>
+            <p>
+              Si revisamos la salida del log, podremos ver la consulta que lanza
+              Hibernate para rescatar la lista, y comprobar que implementa la
+              ordenación que hemos indicado.
+            </p>
+            <pre class="hljs applescript"><code class="sql">select
+                person0_.<span class="hljs-built_in">id</span> <span class="hljs-keyword">as</span> id1_0_1_,
+                person0_.<span class="hljs-built_in">name</span> <span class="hljs-keyword">as</span> name2_0_1_,
+                phones1_.Person_id <span class="hljs-keyword">as</span> Person_i1_1_3_,
+                phone2_.<span class="hljs-built_in">id</span> <span class="hljs-keyword">as</span> phones_i2_1_3_,
+                phone2_.<span class="hljs-built_in">id</span> <span class="hljs-keyword">as</span> id1_2_0_,
+                phone2_.<span class="hljs-built_in">number</span> <span class="hljs-keyword">as</span> number2_2_0_,
+                phone2_.type <span class="hljs-keyword">as</span> type3_2_0_
+            <span class="hljs-keyword">from</span>
+                Person person0_
+            left outer join
+                Person_Phone phones1_
+                    <span class="hljs-keyword">on</span> person0_.<span class="hljs-built_in">id</span>=phones1_.Person_id
+            left outer join
+                Phone phone2_
+                    <span class="hljs-keyword">on</span> phones1_.phones_id=phone2_.<span class="hljs-built_in">id</span>
+            <span class="hljs-keyword">where</span>
+                person0_.<span class="hljs-built_in">id</span>=?
+            order <span class="hljs-keyword">by</span>
+                phone2_.<span class="hljs-built_in">number</span>
+        </code></pre>
+            <blockquote>
+              <p>
+                La anotación
+                <code>@OrderBy</code>
+                soporta más de una propiedad para la ordenación. Por ejemplo
+                <code>@OrderBy("name ASC, type DESC")</code>
+                .
+                <br />
+                Si no se especifica ningún orden, se ordena en base a la clave
+                primaria de la entidad hija.
+              </p>
+            </blockquote>
+            <p>
+              Otra opción que tenemos es
+              <code>@OrderColumn</code>
+              .
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@OneToMany</span>(cascade = CascadeType.ALL)
+        <span class="hljs-variable">@OrderColumn</span>(name = <span class="hljs-string">"order_id"</span>)
+        private List&lt;Phone&gt; phones = new ArrayList&lt;&gt;();
+        </code></pre>
+            <p>
+              En este caso, la tabla de enlace toma el campo
+              <code>order_id</code>
+              , y lo utiliza para implementar el orden.
+            </p>
+            <pre
+              class="hljs sql"
+            ><code class="sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> Person_Phone (
+            Person_id <span class="hljs-built_in">BIGINT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> ,
+            phones_id <span class="hljs-built_in">BIGINT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> ,
+            order_id <span class="hljs-built_in">INTEGER</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> ,
+            PRIMARY <span class="hljs-keyword">KEY</span> ( Person_id, order_id )
+        )
+        </code></pre>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

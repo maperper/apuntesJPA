@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <p>
+              Las asociaciones Uno-a-Uno también pueden ser unidireccionales o
+              bidireccionales.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/bfb81aa7-5e34-4017-86cf-8f1916d41419.jpg"
+                alt="Asociación uno-a-uno"
+              />
+            </p>
+            <h3 id="10.1.1-`@onetoone`-unidireccional">
+              <a
+                name="10.1.1-`@onetoone`-unidireccional"
+                href="#10.1.1-`@onetoone`-unidireccional"
+              ></a>
+              10.1.1
+              <code>@OneToOne</code>
+              unidireccional
+            </h3>
+            <p>
+              En una asociación uno-a-uno, solamente una instancia de una clase
+              se asocia con una instancia de otra. Al usar el esquema
+              <em>unidireccional</em>
+              , tenemos que decidir un lado como
+              <strong>propietario</strong>
+              .
+            </p>
+            <pre class="hljs java"><code class="java">
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Phone</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-meta">@OneToOne</span>
+            <span class="hljs-meta">@JoinColumn</span>(name = <span class="hljs-string">"details_id"</span>)
+            <span class="hljs-keyword">private</span> PhoneDetails details;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Phone</span><span class="hljs-params">()</span> </span>{
+            }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> PhoneDetails <span class="hljs-title">getDetails</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> details;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setDetails</span><span class="hljs-params">(PhoneDetails details)</span> </span>{
+                <span class="hljs-keyword">this</span>.details = details;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+        }
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PhoneDetails</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> Long id;
+        
+            <span class="hljs-keyword">private</span> String provider;
+        
+            <span class="hljs-keyword">private</span> String technology;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">PhoneDetails</span><span class="hljs-params">()</span> </span>{
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">PhoneDetails</span><span class="hljs-params">(String provider, String technology)</span> </span>{
+                <span class="hljs-keyword">this</span>.provider = provider;
+                <span class="hljs-keyword">this</span>.technology = technology;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getProvider</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> provider;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getTechnology</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> technology;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setTechnology</span><span class="hljs-params">(String technology)</span> </span>{
+                <span class="hljs-keyword">this</span>.technology = technology;
+            }
+        
+        }
+        </code></pre>
+            <p>
+              En apariencia, el tratamiento de esta asociación es como una
+              <code>@ManyToOne</code>
+              (desde el punto de vista relacional, estamos usando una clave
+              externa). Sin embargo, no tendría sentido que entender la entidad
+              <code>PhoneDetails</code>
+              como padre, y
+              <code>Phone</code>
+              como hija (no podemos tener unos detalles de teléfono sin un
+              teléfono). Para solucionar esto, podemos usar una asociación
+              bidireccional.
+            </p>
+            <h3 id="10.1.2-`@onetoone`-bidireccional">
+              <a
+                name="10.1.2-`@onetoone`-bidireccional"
+                href="#10.1.2-`@onetoone`-bidireccional"
+              ></a>
+              10.1.2
+              <code>@OneToOne</code>
+              bidireccional
+            </h3>
+            <p>
+              Para añadir el tratamiento bidireccional, añadimos un reflejo de
+              la asociación en la clase
+              <code>PhoneDetails</code>
+              .
+            </p>
+            <pre class="hljs kotlin"><code class="java">
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Phone</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+        
+            <span class="hljs-meta">@Column(name = <span class="hljs-meta-string">"`number`"</span>)</span>
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-meta">@OneToOne(mappedBy = <span class="hljs-meta-string">"phone"</span>, cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)</span>
+            <span class="hljs-keyword">private</span> PhoneDetails details;
+        
+            <span class="hljs-keyword">public</span> Phone() {
+            }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-keyword">public</span> PhoneDetails getDetails() {
+                <span class="hljs-keyword">return</span> details;
+            }
+        
+            <span class="hljs-keyword">public</span> void addDetails(PhoneDetails details) {
+                details.setPhone(<span class="hljs-keyword">this</span>);
+                <span class="hljs-keyword">this</span>.details = details;
+            }
+        
+            <span class="hljs-keyword">public</span> void removeDetails() {
+                <span class="hljs-keyword">if</span> (details != <span class="hljs-literal">null</span>) {
+                    details.setPhone(<span class="hljs-literal">null</span>);
+                    <span class="hljs-keyword">this</span>.details = <span class="hljs-literal">null</span>;
+                }
+            }
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PhoneDetails</span> </span>{
+        
+                <span class="hljs-meta">@Id</span>
+                <span class="hljs-meta">@GeneratedValue</span>
+                <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+        
+                <span class="hljs-keyword">private</span> String provider;
+        
+                <span class="hljs-keyword">private</span> String technology;
+        
+                <span class="hljs-meta">@OneToOne(fetch = FetchType.LAZY)</span>
+                <span class="hljs-meta">@JoinColumn(name = <span class="hljs-meta-string">"phone_id"</span>)</span>
+                <span class="hljs-keyword">private</span> Phone phone;
+        
+                <span class="hljs-keyword">public</span> PhoneDetails() {
+                }
+        
+                    <span class="hljs-comment">//Resto de métodos</span>
+        }
+        </code></pre>
+            <p>En este caso, los métodos:</p>
+            <pre
+              class="hljs aspectj"
+            ><code class="java"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">addDetails</span><span class="hljs-params">(PhoneDetails details)</span> </span>{
+            details.setPhone(<span class="hljs-keyword">this</span>);
+            <span class="hljs-keyword">this</span>.details = details;
+        }
+        
+        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">removeDetails</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">if</span> (details != <span class="hljs-keyword">null</span>) {
+                details.setPhone(<span class="hljs-keyword">null</span>);
+                <span class="hljs-keyword">this</span>.details = <span class="hljs-keyword">null</span>;
+            }
+        }
+        </code></pre>
+            <p>
+              gestionan la lógica de la asociación. De esa forma, el ciclo de
+              vida de uso sería como siguie:
+            </p>
+            <pre
+              class="hljs haxe"
+            ><code class="java">Phone phone = <span class="hljs-keyword">new</span> <span class="hljs-type">Phone</span>(<span class="hljs-string">"954000000"</span>);
+        PhoneDetails details = <span class="hljs-keyword">new</span> <span class="hljs-type">PhoneDetails</span>(<span class="hljs-string">"Movistar"</span>, <span class="hljs-string">"Fijo"</span>);
+        phone.addDetails(details);
+        em.persist(phone);
+        </code></pre>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

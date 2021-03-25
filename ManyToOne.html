@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="8.1-asociaciones-entre-entidades">
+              <a
+                name="8.1-asociaciones-entre-entidades"
+                href="#8.1-asociaciones-entre-entidades"
+              ></a>
+              8.1 Asociaciones entre entidades
+            </h2>
+            <p>
+              Normalmente, en todos los sistemas de información, las entidades
+              del modelo de dominio suelen estar asociadas entre ellas, de forma
+              que suele ser tan importante (o más) registrar la información
+              asociada a la asociación como a la entidad.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="center-block img-responsive"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/cbb31128-859c-4158-81e6-57ed9ce84085.png"
+                alt="Diagrama de clases completo"
+              />
+            </p>
+            <p>
+              A nivel de base de datos, estas asociaciones suelen implementarse
+              mediante claves externas. Una
+              <em>foreign key</em>
+              no es más que la presencia de la clave primaria de una tabla en
+              otra tabla (puede ser reflexiva, y estar en la misma tabla), a la
+              cual
+              <em>apunta</em>
+              .
+            </p>
+            <p>
+              JPA nos permite modelar estas asociaciones, tanto de forma
+              <em>unidireccional</em>
+              como de forma
+              <em>bidireccional</em>
+              . Veamos poco a poco todas ellas.
+            </p>
+            <h2 id="8.2.-asociaciones-many-to-one-(muchos-a-uno)">
+              <a
+                name="8.2.-asociaciones-many-to-one-(muchos-a-uno)"
+                href="#8.2.-asociaciones-many-to-one-(muchos-a-uno)"
+              ></a>
+              8.2. Asociaciones Many-To-One (Muchos a uno)
+            </h2>
+            <p>
+              Se trata de la asociación más sencilla y común de todas. Este tipo
+              de asociaciones a conocida en algunos contextos como una relación
+              padre/hijo, donde el lado muchos es el
+              <em>hijo</em>
+              y el lado uno es el
+              <em>padre</em>
+              .
+              <br />
+              La versión más sencilla de esta asociación es la
+              <strong>unidireccional</strong>
+              , en la que solo representamos la asociación en el lado muchos.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="center-block img-responsive"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/6f754f0b-e6f2-433f-9611-c197868e629d.png"
+                alt="diagrama de clases"
+              />
+            </p>
+            <p>El código fuente sería el siguiente:</p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">(String name)</span> </span>{
+                <span class="hljs-keyword">this</span>.name = name;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+            <span class="hljs-comment">//resto de métodos...</span>
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Phone</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-meta">@ManyToOne</span>
+            <span class="hljs-meta">@JoinColumn</span>(name = <span class="hljs-string">"person_id"</span>,
+                            foreignKey = <span class="hljs-meta">@ForeignKey</span>(name=<span class="hljs-string">"PERSON_ID_FK"</span>))
+            <span class="hljs-keyword">private</span> Person person;
+        
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Phone</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Phone</span><span class="hljs-params">(String number)</span> </span>{
+                <span class="hljs-keyword">this</span>.number = number;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getNumber</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> number;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setNumber</span><span class="hljs-params">(String number)</span> </span>{
+                <span class="hljs-keyword">this</span>.number = number;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> Person <span class="hljs-title">getPerson</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> person;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setPerson</span><span class="hljs-params">(Person person)</span> </span>{
+                <span class="hljs-keyword">this</span>.person = person;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+        
+        }
+        </code></pre>
+            <p>
+              La anotación
+              <code>@ManyToOne</code>
+              nos permite indicar que una columna representa una asociación
+              muchos-a-uno con otra entidad. El tipo de dato será el de la clase
+              del lado
+              <em>uno</em>
+              . Complementariamente, podemos añadir las anotaciones
+              <code>@JoinColumn</code>
+              , que nos permite indicar el nombre de la columna que hará las
+              funciones de clave externa, así como
+              <code>@ForeignKey</code>
+              , con la que podemos indicar el nombre de la restricción que se
+              creará a nivel de base de datos (muy útil para depurar errores).
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@ManyToOne</span>
+        <span class="hljs-variable">@JoinColumn</span>(name = <span class="hljs-string">"person_id"</span>,
+                foreignKey = <span class="hljs-variable">@ForeignKey</span>(name=<span class="hljs-string">"PERSON_ID_FK"</span>))
+        private Person person;
+        </code></pre>
+            <p>
+              Cada entidad tiene su ciclo de vida propio. Una vez que añadimos
+              la asociación
+              <code>@ManyToOne</code>
+              , Hibernate establece el valor de la clave externa.
+            </p>
+            <pre
+              class="hljs abnf"
+            ><code class="java">Person person = new Person(<span class="hljs-string">"Pepe"</span>)<span class="hljs-comment">;</span>
+        em.persist( person )<span class="hljs-comment">;</span>
+        
+        Phone phone = new Phone(<span class="hljs-string">"954000000"</span>)<span class="hljs-comment">;</span>
+        phone.setPerson(person)<span class="hljs-comment">;</span>
+        em.persist(phone)<span class="hljs-comment">;</span>
+        
+        em.flush()<span class="hljs-comment">;</span>
+        phone.setPerson(null)<span class="hljs-comment">;</span>
+        </code></pre>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

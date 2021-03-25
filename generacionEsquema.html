@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2 id="14.1-generación-automática-del-esquema">
+              <a
+                name="14.1-generación-automática-del-esquema"
+                href="#14.1-generación-automática-del-esquema"
+              ></a>
+              14.1 Generación automática del esquema
+            </h2>
+            <p>
+              Como hemos podido comprobar en las lecciones anteriores, Hibernate
+              permite autogenerar el esquema de nuestra base de datos a partir
+              del mapeo que hayamos realizado (ya sea a través de XML o a través
+              de anotaciones).
+            </p>
+            <blockquote>
+              <p>
+                Aunque la generación automática del esquema es muy util para el
+                testeo o el prototipado, en un entorno de producción es menos
+                usual, siendo más flexible manejar el esquema a través de
+                scripts sql
+                <em>incrementales</em>
+                .
+              </p>
+            </blockquote>
+            <p>
+              A nivel de configuración, tenemos una propiedad JPA, llamada
+              <code>hibernate.hbm2ddl.auto</code>
+              , que nos permite generar el DDL para un buen número de opciones:
+            </p>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Opción</th>
+                    <th>Propósito</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>none</code></td>
+                    <td>Valor por defecto. No realiza ninguna acción</td>
+                  </tr>
+                  <tr>
+                    <td><code>create-only</code></td>
+                    <td>
+                      Solamente realiza el proceso de creación de la base de
+                      datos.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>drop</code></td>
+                    <td>Realiza solamente el borrado de la base de datos.</td>
+                  </tr>
+                  <tr>
+                    <td><code>create</code></td>
+                    <td>
+                      Realiza un borrado de la base de datos, y posteriormente
+                      su creación.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>create-drop</code></td>
+                    <td>
+                      Elimina el esquema y lo vuelve a crear al crear el
+                      contexto de persistencia o el
+                      <code>SessionFactory</code>
+                      . Adicionalmente, también lo elimina cuando uno u otro se
+                      cierran.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>validate</code></td>
+                    <td>Valida el esquema de la base de datos</td>
+                  </tr>
+                  <tr>
+                    <td><code>update</code></td>
+                    <td>
+                      Actualiza la base de datos, con los cambios necesarios.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h2
+              id="14.1.1-customización-mediante-la-importación-de-los-scripts-de-sql"
+            >
+              <a
+                name="14.1.1-customización-mediante-la-importación-de-los-scripts-de-sql"
+                href="#14.1.1-customización-mediante-la-importación-de-los-scripts-de-sql"
+              ></a>
+              14.1.1 Customización mediante la importación de los scripts de sql
+            </h2>
+            <p>
+              Para personalizar el proceso de creación, podemos aportar otros
+              scripts sql, a través de la propiedad de configuración
+              <code>hibernate.hbm2ddl.import_files</code>
+              . Un buen nombre para este fichero sería
+              <code>schema-generation.sql</code>
+              .
+            </p>
+            <p>Por ejemplo, el contenido del fichero podría ser:</p>
+            <pre
+              class="hljs sql"
+            ><code class="sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">sequence</span> book_sequence <span class="hljs-keyword">start</span> <span class="hljs-keyword">with</span> <span class="hljs-number">1</span> <span class="hljs-keyword">increment</span> <span class="hljs-keyword">by</span> <span class="hljs-number">1</span>
+        </code></pre>
+            <p>O incluso la inserción de múltiples datos iniciales.</p>
+            <h2
+              id="14.2-proceso-inverso:-generación-de-las-entidades-a-partir-de-una-base-de-datos."
+            >
+              <a
+                name="14.2-proceso-inverso:-generación-de-las-entidades-a-partir-de-una-base-de-datos."
+                href="#14.2-proceso-inverso:-generación-de-las-entidades-a-partir-de-una-base-de-datos."
+              ></a>
+              14.2 Proceso inverso: generación de las entidades a partir de una
+              base de datos.
+            </h2>
+            <p>
+              Eclipse, o Spring Tool Suite, nos ofrece otra funcionalidad que
+              nos puede ahorrar algo de trabajo: para una base de datos dada, es
+              capaz de
+              <em>escanear</em>
+              la misma, y generar las entidades suficientes para manejarla.
+            </p>
+            <p>
+              Este esquema de trabajo puede ser útil en un contexto en el que ya
+              tengamos una base de datos creada y queramos comenzar un proyecto
+              JPA-Hibernate para gestionarla, o simplemente porque nuestra
+              experiencia tecnológica con SQL sea dilatada, y por ende seamos
+              capaces de aprovechar al máximo las funcionalidades del RDBMS
+              concreto que vayamos a usar.
+            </p>
+            <p>
+              Supongamos que tenemos una base de datos que gestiona autores y
+              libros, y que se crearía a partir del siguiente script sql:
+            </p>
+            <pre
+              class="hljs sql"
+            ><code class="sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> AUTOR
+        (
+            <span class="hljs-keyword">id</span>                <span class="hljs-built_in">bigint</span>(<span class="hljs-number">15</span>),
+            nombre            <span class="hljs-built_in">varchar</span>(<span class="hljs-number">200</span>),
+            anio_nac          <span class="hljs-built_in">smallint</span>,
+            nacionalidad      <span class="hljs-built_in">varchar</span>(<span class="hljs-number">100</span>),
+            <span class="hljs-keyword">constraint</span> PK_AUTOR primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+        );
+        
+        <span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> LIBRO
+        (
+            <span class="hljs-keyword">id</span>                <span class="hljs-built_in">bigint</span>(<span class="hljs-number">20</span>),
+            titulo            <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+            isbn              <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>),
+            categoria         <span class="hljs-built_in">varchar</span>(<span class="hljs-number">100</span>),
+            anio_public       <span class="hljs-built_in">smallint</span>,
+            <span class="hljs-keyword">constraint</span> PK_LIBRO primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+        );
+        
+        <span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> AUTOR_LIBRO
+        (
+            id_autor        <span class="hljs-built_in">bigint</span>(<span class="hljs-number">15</span>),
+            id_libro        <span class="hljs-built_in">bigint</span>(<span class="hljs-number">20</span>),
+            <span class="hljs-keyword">constraint</span> PK_AUTOR_LIBRO primary <span class="hljs-keyword">key</span> (id_autor, id_libro),
+            <span class="hljs-keyword">constraint</span> FK_AL_AUTOR foreign <span class="hljs-keyword">key</span> (id_autor) <span class="hljs-keyword">references</span> AUTOR (<span class="hljs-keyword">id</span>),
+            <span class="hljs-keyword">constraint</span> FK_AL_LIBRO foreign <span class="hljs-keyword">key</span> (id_libro) <span class="hljs-keyword">references</span> LIBRO (<span class="hljs-keyword">id</span>)
+        );
+        </code></pre>
+            <p>
+              Puedes descargar el fichero
+              <a href="./data/schema.sql">aquí</a>
+              .
+            </p>
+            <p>
+              Para manejar esta base de datos, deberíamos tener dos entidades,
+              <code>Autor</code>
+              y
+              <code>Libro</code>
+              y una asociación
+              <em>ManyToMany</em>
+              bidireccional entre ellas.
+            </p>
+            <p>
+              Para generar las entidades, pulsamos sobre el proyecto con el
+              botón derecho,
+              <em>New</em>
+              &gt;
+              <em>JPA Entities from Tables</em>
+              . Para poder continuar con el proceso, tenemos que tener
+              habilitada la conexión con la base de datos.
+            </p>
+            <blockquote>
+              <p>
+                Si aun no la tenías, puedes hacerlo en la vista Data Source
+                Explorer. Debe aparecer seleccionando la perspectiva de Eclipse
+                JPA. Si no aparece, puedes visualizarla a través de
+                <em>Window</em>
+                &gt;
+                <em>Show views</em>
+                &gt;
+                <em>Data Source Explorer</em>
+                .
+              </p>
+            </blockquote>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/63a14b46-e1b4-4ca5-9d8e-e15ea3a98f1c.JPG"
+                alt="Primer paso"
+              />
+            </p>
+            <p>
+              Seleccionamos los tablas que cuyas entidades vamos a generar y
+              pulsamos sobre el botón siguiente.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/e77a66cc-2062-4ef3-b7a6-2af987f560ed.JPG"
+                alt="Segundo paso"
+              />
+            </p>
+            <p>
+              El asistente nos muestra en este paso un diagrama con las tablas y
+              las asociaciones y su cardinalidad. En nuestro caso, aparecen
+              <em>autor</em>
+              ,
+              <em>libro</em>
+              y una asociación muchos-a-muchos entre ellos. Si necesitáramos
+              añadir alguna asociación auxiliar, lo podemos hacer en este punto
+              del asistente.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/f5728bac-9f39-418a-96ec-2dc192293d44.JPG"
+                alt="Tercer paso"
+              />
+            </p>
+            <p>
+              En el siguiente paso, seleccionamos algunos elementos importantes:
+            </p>
+            <ul>
+              <li>El generador de identificadores.</li>
+              <li>
+                El tipo de acceso (a través de los atributos (
+                <em>field</em>
+                ) o de los
+                <em>getters</em>
+                (
+                <em>property</em>
+                )).
+              </li>
+              <li>
+                El tipo de
+                <em>fetching</em>
+                de las asociaciones (por defecto, ágil (
+                <em>eager</em>
+                ) o perezoso (
+                <em>lazy</em>
+                )).
+              </li>
+            </ul>
+            <p>
+              Debajo, tenemos las opciones del paquete en el que vamos a ubicar
+              las clases, si tienen algún tipo de clase base o deben implementar
+              alguna interfaz (por defecto,
+              <code>Serializable</code>
+              ).
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/424dc47f-4ce1-473e-a116-d7ee17bd7325.JPG"
+                alt="Cuarto paso"
+              />
+            </p>
+            <p>
+              En el siguiente paso, podemos
+              <em>customizar</em>
+              cada una de las entidades que se van a generar.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/ca779920-f05d-4424-9305-d49e064a2e39.JPG"
+                alt="Cuarto paso 2"
+              />
+            </p>
+            <p>
+              Eclipse ha tomado la decisión con respecto a los tipos de datos
+              Java, pero puede interesarnos usar otro.
+            </p>
+            <p>
+              Al finalizar el asistente, tendremos nuestras nuevas entidades
+              disponibles.
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="Java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@NamedQuery</span>(name=<span class="hljs-string">"Autor.findAll"</span>, query=<span class="hljs-string">"SELECT a FROM Autor a"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Autor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>(strategy=GenerationType.AUTO)
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-meta">@Column</span>(name=<span class="hljs-string">"anio_nac"</span>)
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">short</span> anioNac;
+        
+            <span class="hljs-keyword">private</span> String nacionalidad;
+        
+            <span class="hljs-keyword">private</span> String nombre;
+        
+            <span class="hljs-comment">//bi-directional many-to-many association to Libro</span>
+            <span class="hljs-meta">@ManyToMany</span>
+            <span class="hljs-meta">@JoinTable</span>(
+                name=<span class="hljs-string">"autor_libro"</span>
+                , joinColumns={
+                    <span class="hljs-meta">@JoinColumn</span>(name=<span class="hljs-string">"id_autor"</span>)
+                    }
+                , inverseJoinColumns={
+                    <span class="hljs-meta">@JoinColumn</span>(name=<span class="hljs-string">"id_libro"</span>)
+                    }
+                )
+            <span class="hljs-keyword">private</span> List&lt;Libro&gt; libros;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Autor</span><span class="hljs-params">()</span> </span>{
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.id;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setId</span><span class="hljs-params">(<span class="hljs-keyword">long</span> id)</span> </span>{
+                <span class="hljs-keyword">this</span>.id = id;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">short</span> <span class="hljs-title">getAnioNac</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.anioNac;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setAnioNac</span><span class="hljs-params">(<span class="hljs-keyword">short</span> anioNac)</span> </span>{
+                <span class="hljs-keyword">this</span>.anioNac = anioNac;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getNacionalidad</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.nacionalidad;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setNacionalidad</span><span class="hljs-params">(String nacionalidad)</span> </span>{
+                <span class="hljs-keyword">this</span>.nacionalidad = nacionalidad;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getNombre</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.nombre;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setNombre</span><span class="hljs-params">(String nombre)</span> </span>{
+                <span class="hljs-keyword">this</span>.nombre = nombre;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Libro&gt; <span class="hljs-title">getLibros</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.libros;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setLibros</span><span class="hljs-params">(List&lt;Libro&gt; libros)</span> </span>{
+                <span class="hljs-keyword">this</span>.libros = libros;
+            }
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@NamedQuery</span>(name=<span class="hljs-string">"Libro.findAll"</span>, query=<span class="hljs-string">"SELECT l FROM Libro l"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Libro</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>(strategy=GenerationType.AUTO)
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-meta">@Column</span>(name=<span class="hljs-string">"anio_public"</span>)
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">short</span> anioPublic;
+        
+            <span class="hljs-keyword">private</span> String categoria;
+        
+            <span class="hljs-keyword">private</span> String isbn;
+        
+            <span class="hljs-keyword">private</span> String titulo;
+        
+            <span class="hljs-comment">//bi-directional many-to-many association to Autor</span>
+            <span class="hljs-meta">@ManyToMany</span>(mappedBy=<span class="hljs-string">"libros"</span>)
+            <span class="hljs-keyword">private</span> List&lt;Autor&gt; autors;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Libro</span><span class="hljs-params">()</span> </span>{
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.id;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setId</span><span class="hljs-params">(<span class="hljs-keyword">long</span> id)</span> </span>{
+                <span class="hljs-keyword">this</span>.id = id;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">short</span> <span class="hljs-title">getAnioPublic</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.anioPublic;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setAnioPublic</span><span class="hljs-params">(<span class="hljs-keyword">short</span> anioPublic)</span> </span>{
+                <span class="hljs-keyword">this</span>.anioPublic = anioPublic;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getCategoria</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.categoria;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setCategoria</span><span class="hljs-params">(String categoria)</span> </span>{
+                <span class="hljs-keyword">this</span>.categoria = categoria;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getIsbn</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.isbn;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setIsbn</span><span class="hljs-params">(String isbn)</span> </span>{
+                <span class="hljs-keyword">this</span>.isbn = isbn;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getTitulo</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.titulo;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setTitulo</span><span class="hljs-params">(String titulo)</span> </span>{
+                <span class="hljs-keyword">this</span>.titulo = titulo;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Autor&gt; <span class="hljs-title">getAutors</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.autors;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setAutors</span><span class="hljs-params">(List&lt;Autor&gt; autors)</span> </span>{
+                <span class="hljs-keyword">this</span>.autors = autors;
+            }
+        
+        }
+        </code></pre>
+            <p>
+              Además, estas han sido añadidas al nuestra unidad de persistencia.
+              Añadimos las demás propiedades.
+            </p>
+            <pre
+              class="hljs applescript"
+            ><code class="xml">&lt;persistence <span class="hljs-built_in">version</span>=<span class="hljs-string">"2.1"</span> xmlns=<span class="hljs-string">"http://xmlns.jcp.org/xml/ns/persistence"</span> xmlns:xsi=<span class="hljs-string">"http://www.w3.org/2001/XMLSchema-instance"</span> xsi:schemaLocation=<span class="hljs-string">"http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"</span>&gt;
+            &lt;persistence-unit <span class="hljs-built_in">name</span>=<span class="hljs-string">"GeneracionEntidades"</span> <span class="hljs-keyword">transaction</span>-type=<span class="hljs-string">"RESOURCE_LOCAL"</span>&gt;
+                &lt;<span class="hljs-built_in">class</span>&gt;com.openwebinars.hibernate.generacionentidades.Autor&lt;/<span class="hljs-built_in">class</span>&gt;
+                &lt;<span class="hljs-built_in">class</span>&gt;com.openwebinars.hibernate.generacionentidades.Libro&lt;/<span class="hljs-built_in">class</span>&gt;
+                &lt;properties&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"javax.persistence.jdbc.url"</span> value=<span class="hljs-string">"jdbc:mysql://localhost:3306/hibernate"</span>/&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"javax.persistence.jdbc.user"</span> value=<span class="hljs-string">"openwebinars"</span>/&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"javax.persistence.jdbc.driver"</span> value=<span class="hljs-string">"com.mysql.jdbc.Driver"</span>/&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"javax.persistence.jdbc.password"</span> value=<span class="hljs-string">"12345678"</span>/&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"hibernate.dialect"</span> value=<span class="hljs-string">"org.hibernate.dialect.MySQL5InnoDBDialect"</span>/&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"hibernate.connection.driver_class"</span> value=<span class="hljs-string">"com.mysql.jdbc.Driver"</span>/&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"hibernate.show_sql"</span> value=<span class="hljs-string">"true"</span>/&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"hibernate.format_sql"</span> value=<span class="hljs-string">"true"</span>/&gt;
+                &lt;/properties&gt;
+            &lt;/persistence-unit&gt;
+        &lt;/persistence&gt;
+        </code></pre>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

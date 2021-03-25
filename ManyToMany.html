@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <p>
+              Todas las asociaciones muchos a muchos necesitan una tabla que
+              realice de enlace entre ambas entidades asociadas. Veamos el
+              tratamiento unidireccional y bidireccional.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/06cf19e4-1978-49cf-aa10-edc109bd22be.jpg"
+                alt="Asociación muchos a muchos"
+              />
+            </p>
+            <h2 id="11.2-`@manytomany`-unidireccional">
+              <a
+                name="11.2-`@manytomany`-unidireccional"
+                href="#11.2-`@manytomany`-unidireccional"
+              ></a>
+              11.2
+              <code>@ManyToMany</code>
+              unidireccional
+            </h2>
+            <p>
+              Tendremos que definir qué lado es el propietario de la asociación.
+              En esa clase, incluimos una lista de elementos de la clase
+              opuesta.
+            </p>
+            <pre
+              class="hljs kotlin"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+            <span class="hljs-meta">@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})</span>
+            <span class="hljs-keyword">private</span> List&lt;Address&gt; addresses = new ArrayList&lt;&gt;();
+        
+            <span class="hljs-keyword">public</span> Person() {
+            }
+        
+            <span class="hljs-keyword">public</span> List&lt;Address&gt; getAddresses() {
+                <span class="hljs-keyword">return</span> addresses;
+            }
+        
+        }
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Address</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+        
+            <span class="hljs-keyword">private</span> String street;
+        
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-keyword">public</span> Address() {
+            }
+        
+            <span class="hljs-keyword">public</span> Address(String street, String number) {
+                <span class="hljs-keyword">this</span>.street = street;
+                <span class="hljs-keyword">this</span>.number = number;
+            }
+        
+            <span class="hljs-keyword">public</span> <span class="hljs-built_in">Long</span> getId() {
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+            <span class="hljs-keyword">public</span> String getStreet() {
+                <span class="hljs-keyword">return</span> street;
+            }
+        
+            <span class="hljs-keyword">public</span> String getNumber() {
+                <span class="hljs-keyword">return</span> number;
+            }
+        
+        }
+        </code></pre>
+            <p>
+              Cuando una entidad se elimina de la colección
+              <code>@ManyToMany</code>
+              , Hibernate simplemente elimina la fila correspondiente de la
+              tabla de enlace. Desafortunadamente, esta operación requiere
+              eliminar todas las entradas asociadas para el padre seleccionado,
+              y recrear aquellas que actualmente están en el contexto de
+              persistencia.
+            </p>
+            <p>
+              Con un esquema unidireccional, un posible manejo de estas
+              entidades sería el siguiente:
+            </p>
+            <pre
+              class="hljs routeros"
+            ><code class="java">Person person1 = new Person();
+        Person person2 = new Person();
+        <span class="hljs-built_in">
+        Address </span>address1 = new Address( <span class="hljs-string">"Rue del Percebe"</span>, <span class="hljs-string">"13"</span> );<span class="hljs-built_in">
+        Address </span>address2 = new Address( <span class="hljs-string">"Av. de la Constitución"</span>, <span class="hljs-string">"1"</span> );
+        
+        person1.getAddresses().<span class="hljs-builtin-name">add</span>(address1);
+        person1.getAddresses().<span class="hljs-builtin-name">add</span>(address2);
+        
+        person2.getAddresses().<span class="hljs-builtin-name">add</span>(address1);
+        
+        em.persist(person1);
+        em.persist(person2);
+        
+        em.flush();
+        </code></pre>
+            <h2 id="11.3-`@manytomany`-bidireccional">
+              <a
+                name="11.3-`@manytomany`-bidireccional"
+                href="#11.3-`@manytomany`-bidireccional"
+              ></a>
+              11.3
+              <code>@ManyToMany</code>
+              bidireccional
+            </h2>
+            <p>
+              Una asociación bidireccional
+              <code>@ManyToMany</code>
+              tiene un lado
+              <em>propietario</em>
+              y un lado
+              <code>mappedBy</code>
+              . Para preservar la sincronización entre ambos, es buena práctica
+              añadir métodos
+              <em>helper</em>
+              para manejar las asociaciones (como en ocasiones anteriores).
+            </p>
+            <pre
+              class="hljs kotlin"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+        
+            <span class="hljs-meta">@NaturalId</span>
+            <span class="hljs-keyword">private</span> String registrationNumber;
+            <span class="hljs-meta">@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})</span>
+            <span class="hljs-keyword">private</span> List&lt;Address&gt; addresses = new ArrayList&lt;&gt;();
+        
+            <span class="hljs-keyword">public</span> Person() {
+            }
+        
+            <span class="hljs-keyword">public</span> Person(String registrationNumber) {
+                <span class="hljs-keyword">this</span>.registrationNumber = registrationNumber;
+            }
+        
+            <span class="hljs-keyword">public</span> List&lt;Address&gt; getAddresses() {
+                <span class="hljs-keyword">return</span> addresses;
+            }
+        
+            <span class="hljs-keyword">public</span> void addAddress(Address address) {
+                addresses.add( address );
+                address.getOwners().add( <span class="hljs-keyword">this</span> );
+            }
+        
+            <span class="hljs-keyword">public</span> void removeAddress(Address address) {
+                addresses.remove( address );
+                address.getOwners().remove( <span class="hljs-keyword">this</span> );
+            }
+        
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-keyword">public</span> boolean equals(Object o) {
+                <span class="hljs-keyword">if</span> ( <span class="hljs-keyword">this</span> == o ) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                }
+                <span class="hljs-keyword">if</span> ( o == <span class="hljs-literal">null</span> || getClass() != o.getClass() ) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+                }
+                Person person = (Person) o;
+                <span class="hljs-keyword">return</span> Objects.equals( registrationNumber, person.registrationNumber );
+            }
+        
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-keyword">public</span> int hashCode() {
+                <span class="hljs-keyword">return</span> Objects.hash( registrationNumber );
+            }
+        
+        }
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Address</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">Long</span> id;
+        
+            <span class="hljs-keyword">private</span> String street;
+        
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-keyword">private</span> String postalCode;
+        
+            <span class="hljs-meta">@ManyToMany(mappedBy = <span class="hljs-meta-string">"addresses"</span>)</span>
+            <span class="hljs-keyword">private</span> List&lt;Person&gt; owners = new ArrayList&lt;&gt;();
+        
+            <span class="hljs-keyword">public</span> Address() {
+            }
+        
+            <span class="hljs-keyword">public</span> Address(String street, String number, String postalCode) {
+                <span class="hljs-keyword">this</span>.street = street;
+                <span class="hljs-keyword">this</span>.number = number;
+                <span class="hljs-keyword">this</span>.postalCode = postalCode;
+            }
+        
+            <span class="hljs-keyword">public</span> <span class="hljs-built_in">Long</span> getId() {
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-keyword">public</span> boolean equals(Object o) {
+                <span class="hljs-keyword">if</span> ( <span class="hljs-keyword">this</span> == o ) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                }
+                <span class="hljs-keyword">if</span> ( o == <span class="hljs-literal">null</span> || getClass() != o.getClass() ) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+                }
+                Address address = (Address) o;
+                <span class="hljs-keyword">return</span> Objects.equals( street, address.street ) &amp;&amp;
+                        Objects.equals( number, address.number ) &amp;&amp;
+                        Objects.equals( postalCode, address.postalCode );
+            }
+        
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-keyword">public</span> int hashCode() {
+                <span class="hljs-keyword">return</span> Objects.hash( street, number, postalCode );
+            }
+        
+        }
+        </code></pre>
+            <p>
+              Cabe destacar la lógica de los métodos
+              <em>helper</em>
+              , que nos permiten establecer las referencias (o eliminarlas)
+              entre ambas clases.
+            </p>
+            <pre
+              class="hljs routeros"
+            ><code class="java">public void addAddress(Address address) {
+                addresses.<span class="hljs-builtin-name">add</span>(<span class="hljs-built_in"> address </span>);
+                address.getOwners().<span class="hljs-builtin-name">add</span>( this );
+        }
+        
+        public void removeAddress(Address address) {
+                addresses.<span class="hljs-builtin-name">remove</span>(<span class="hljs-built_in"> address </span>);
+                address.getOwners().<span class="hljs-builtin-name">remove</span>( this );
+        }
+        </code></pre>
+            <h2 id="11.4-`@manytomany`-con-atributos-extra">
+              <a
+                name="11.4-`@manytomany`-con-atributos-extra"
+                href="#11.4-`@manytomany`-con-atributos-extra"
+              ></a>
+              11.4
+              <code>@ManyToMany</code>
+              con atributos extra
+            </h2>
+            <p>
+              Un caso que suele presentarse en muchas ocasiones con las
+              asociaciones muchos a muchos es que necesitamos añadir un atributo
+              que no es de ninguna de las dos entidades, sino de la asociación
+              en sí.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/19043fc3-65fd-4602-a749-7e130a378314.png"
+                alt="Asociación muchos a muchos con clase de asociación"
+              />
+            </p>
+            <p>
+              Algunos autores llaman a este tipo de asociación con atributos
+              <strong>clase de asociación</strong>
+              .
+            </p>
+            <p>
+              Como este nuevo atributo no es ni de la dirección, ni de la
+              persona, no lo podemos colocar en ninguna de las dos entidades,
+              por lo que tenemos que seguir los siguientes pasos:
+            </p>
+            <ol>
+              <li>
+                Generar una nueva entidad
+                <code>PersonAddress</code>
+              </li>
+              <li>
+                Romper la asociación
+                <code>@ManyToMany</code>
+                en ambos extremos en dos asociaciones que den el mismo
+                resultado:
+                <code>@ManyToOne</code>
+                +
+                <code>@OneToMany</code>
+                .
+              </li>
+              <li>
+                Manejar de forma conveniente la clave primaria de esta nueva
+                entidad. Al ser una clave primaria compuesta, necesitaremos de
+                una clase extra,
+                <code>PersonAddressId</code>
+                , y de la anotación
+                <code>@IdClass</code>
+                , para poder manejarla.
+              </li>
+            </ol>
+            <pre
+              class="hljs typescript"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> Address {
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> Long id;
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> street;
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> <span class="hljs-built_in">number</span>;
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> postalCode;
+        
+            <span class="hljs-meta">@OneToMany</span>(mappedBy = <span class="hljs-string">"address"</span>, cascade = CascadeType.ALL, orphanRemoval = <span class="hljs-literal">true</span>)
+            <span class="hljs-keyword">private</span> List&lt;PersonAddress&gt; owners = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+        
+            <span class="hljs-keyword">public</span> List&lt;PersonAddress&gt; getOwners() {
+                <span class="hljs-keyword">return</span> owners;
+            }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        }
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> Person {
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> Long id;
+        
+            <span class="hljs-meta">@NaturalId</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> registrationNumber;
+        
+            <span class="hljs-meta">@OneToMany</span>(mappedBy = <span class="hljs-string">"person"</span>, cascade = CascadeType.ALL, orphanRemoval = <span class="hljs-literal">true</span>)
+            <span class="hljs-keyword">private</span> List&lt;PersonAddress&gt; addresses = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-keyword">public</span> List&lt;PersonAddress&gt; getAddresses() {
+                <span class="hljs-keyword">return</span> addresses;
+            }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        }
+        </code></pre>
+            <p>
+              Como podemos ver, las entidades
+              <code>Person</code>
+              y
+              <code>Address</code>
+              tienen ahora una asociación
+              <code>@OneToMany</code>
+              en lugar de una
+              <code>@ManyToMany</code>
+              . ¿Dónde está el resto de esa asociación? Veamos la entidad
+              <code>PersonsAddress</code>
+              .
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@IdClass</span>(PersonAddressId.class)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PersonAddress</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@ManyToOne</span>
+            <span class="hljs-meta">@JoinColumn</span>(
+                    name=<span class="hljs-string">"person_id"</span>,
+                    insertable = <span class="hljs-keyword">false</span>, updatable = <span class="hljs-keyword">false</span>
+            )
+            <span class="hljs-keyword">private</span> Person person;
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@ManyToOne</span>
+            <span class="hljs-meta">@JoinColumn</span>(
+                    name=<span class="hljs-string">"address_id"</span>,
+                    insertable = <span class="hljs-keyword">false</span>, updatable = <span class="hljs-keyword">false</span>
+            )
+            <span class="hljs-keyword">private</span> Address address;
+        
+            <span class="hljs-keyword">private</span> String nameOfAddress;
+        
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">PersonAddress</span><span class="hljs-params">()</span> </span>{ }
+        
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">PersonAddress</span><span class="hljs-params">(Person person, Address address)</span> </span>{
+                <span class="hljs-keyword">this</span>.person = person;
+                <span class="hljs-keyword">this</span>.address = address;
+        
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">PersonAddress</span><span class="hljs-params">(Person person, Address address, String name)</span> </span>{
+                <span class="hljs-keyword">this</span>(person, address);
+                <span class="hljs-keyword">this</span>.nameOfAddress = name;
+            }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+        }
+        
+        
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PersonAddressId</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+        
+            <span class="hljs-keyword">private</span> Long person;
+            <span class="hljs-keyword">private</span> Long address;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">PersonAddressId</span><span class="hljs-params">()</span> </span>{
+        
+            }
+        
+            <span class="hljs-comment">//Getters, setters, equals y hashCode</span>
+        
+        }
+        </code></pre>
+            <p>
+              La anotación
+              <code>@Id</code>
+              solo está permitida, en primera instancia, para claves primarias
+              simples, por lo que una entidad, por norma, no puede tener dos
+              atributos anotados con
+              <code>@Id</code>
+              . Para poder manejar una clave primaria
+              <strong>compuesta</strong>
+              , JPA nos obliga a utilizar alguna estrategia diferente, como
+              <code>@IdClass</code>
+              o
+              <code>@EmbeddId</code>
+              . Nosotros optamos por la primera. Para ello, creamos una clase
+              que tendrá los campos que conforman la clave primaria y que
+              cumplirá con las siguientes características:
+            </p>
+            <ul>
+              <li>Debe ser una clase pública</li>
+              <li>Debe tener un constructor sin argumentos</li>
+              <li>
+                Debe implementar
+                <code>Serializable</code>
+              </li>
+              <li>
+                No debe tener
+                <strong><em>clave primaria propia</em></strong>
+              </li>
+              <li>
+                Debe implementar los métodos
+                <code>equals</code>
+                y
+                <code>hashCode</code>
+                .
+              </li>
+            </ul>
+            <p>
+              Para poder manejar ahora el ciclo de vida de esta nueva entidad,
+              podemos modificar los métodos
+              <em>helper</em>
+              que estábamos usando:
+            </p>
+            <pre
+              class="hljs cs"
+            ><code class="java">    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addAddress</span>(<span class="hljs-params">Address address, String name</span>) </span>{
+                PersonAddress personAddress = <span class="hljs-keyword">new</span> PersonAddress( <span class="hljs-keyword">this</span>, address, name );
+                addresses.<span class="hljs-keyword">add</span>( personAddress );
+                address.getOwners().<span class="hljs-keyword">add</span>(personAddress);
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">removeAddress</span>(<span class="hljs-params">Address address</span>) </span>{
+                PersonAddress personAddress = <span class="hljs-keyword">new</span> PersonAddress( <span class="hljs-keyword">this</span>, address);
+                address.getOwners().<span class="hljs-keyword">remove</span>( personAddress );
+                addresses.<span class="hljs-keyword">remove</span>( personAddress );
+            }
+        </code></pre>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <h2>12.1 Herencia</h2>
+            <p>
+              La herencia es un mecanismo definido por la programación orientada
+              a objetos, mediante el cual podemos definir una relación
+              jerárquica entre varias clases.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/96635724-a64f-4743-bdbc-2e3a7929d0cb.jpg"
+                alt="Diagrama de clases con herencia"
+              />
+            </p>
+            <p>
+              JPA+Hibernate nos ofrecen diferentes mecanismos para trasladar
+              esta relación jerárquica a nuestra base de datos, en función de
+              las necesidades que tengamos.
+            </p>
+            <h3 id="12.1.1-`@mappedsuperclass`">
+              <a
+                name="12.1.1-`@mappedsuperclass`"
+                href="#12.1.1-`@mappedsuperclass`"
+              ></a>
+              12.1.1
+              <code>@MappedSuperclass</code>
+            </h3>
+            <p>
+              En este primer esquema, la clase base
+              <strong>no será trasladada a la base de datos</strong>
+              . Es decir, la tendremos disponible en nuestra aplicación para
+              trabajar con ella, pero no generará una nueva tabla.
+            </p>
+            <p>
+              Si bien no hemos trabajado aun con
+              <strong>consultas</strong>
+              , cabe decir aquí que no podremos hacer uso de las consultas
+              <strong>polimórficas</strong>
+              , y por tanto tendríamos que consultar ambas entidades por
+              separado.
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@MappedSuperclass</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Cuenta</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+            <span class="hljs-keyword">private</span> String titular;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">double</span> balance;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">double</span> tipoInteres;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Cuenta</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">super</span>();
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.id;
+            }
+        
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getTitular</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.titular;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setTitular</span><span class="hljs-params">(String titular)</span> </span>{
+                <span class="hljs-keyword">this</span>.titular = titular;
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">double</span> <span class="hljs-title">getBalance</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.balance;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setBalance</span><span class="hljs-params">(<span class="hljs-keyword">double</span> balance)</span> </span>{
+                <span class="hljs-keyword">this</span>.balance = balance;
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">double</span> <span class="hljs-title">getTipoInteres</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.tipoInteres;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setTipoInteres</span><span class="hljs-params">(<span class="hljs-keyword">double</span> tipoInteres)</span> </span>{
+                <span class="hljs-keyword">this</span>.tipoInteres = tipoInteres;
+            }
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CuentaCredito</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Cuenta</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+        
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">double</span> limiteCredito;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CuentaCredito</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">super</span>();
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">double</span> <span class="hljs-title">getLimiteCredito</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.limiteCredito;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setLimiteCredito</span><span class="hljs-params">(<span class="hljs-keyword">double</span> limiteCredito)</span> </span>{
+                <span class="hljs-keyword">this</span>.limiteCredito = limiteCredito;
+            }
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CuentaDebito</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Cuenta</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+        
+        
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">double</span> cargoPorDescubierto;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CuentaDebito</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">super</span>();
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">double</span> <span class="hljs-title">getCargoPorDescubierto</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.cargoPorDescubierto;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setCargoPorDescubierto</span><span class="hljs-params">(<span class="hljs-keyword">double</span> cargoPorDescubierto)</span> </span>{
+                <span class="hljs-keyword">this</span>.cargoPorDescubierto = cargoPorDescubierto;
+            }
+        
+        }
+        </code></pre>
+            <p>
+              La clase
+              <code>Cuenta</code>
+              trabaja como si fuera una entidad, tenemos que definirla dentro de
+              nuestra unidad de persistencia, pero no se traslada a la base de
+              datos.
+            </p>
+            <p>El DDL generado por Hibernate sería el siguiente:</p>
+            <pre
+              class="hljs sql"
+            ><code class="SQL"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> CuentaCredito (
+               <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                balance <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                tipoInteres <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                titular <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+                limiteCredito <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+            ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        
+            <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> CuentaDebito (
+                   <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                    balance <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                    tipoInteres <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                    titular <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+                    cargoPorDescubierto <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                    primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+                ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        </code></pre>
+            <p>
+              Cada una de las entidades
+              <em>extendidas</em>
+              reciben todos los atributos de la entidad
+              <em>base</em>
+              .
+            </p>
+            <h3 id="12.1.2-`single-table`">
+              <a name="12.1.2-`single-table`" href="#12.1.2-`single-table`"></a>
+              12.1.2
+              <code>Single Table</code>
+            </h3>
+            <p>
+              Con la anotación
+              <code>@SingleTable</code>
+              , le indicamos a Hibernate que para todas las entidades que
+              participen en la jerarquía de herencia, solamente tiene que crear
+              una tabla en la base de datos.
+            </p>
+            <blockquote>
+              <p>
+                Esta estrategia es adecuada si el número de atributos que añaden
+                las clases extendidas no es muy grande. Hay que tener en cuenta
+                que si tenemos dos entidades, B y C, que extienden a A, la tabla
+                generada tendrán los atributos de A, B y C. Si el número de
+                atributos de B es muy grande, al insertar una entidad de tipo C,
+                todos los atributos que correspondan a B serán nulos.
+              </p>
+            </blockquote>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@Inheritance</span>(strategy = InheritanceType.SINGLE_TABLE)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Cuenta</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+            <span class="hljs-keyword">private</span> String titular;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">double</span> balance;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">double</span> tipoInteres;
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Cuenta</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">super</span>();
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.id;
+            }
+        
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getTitular</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.titular;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setTitular</span><span class="hljs-params">(String titular)</span> </span>{
+                <span class="hljs-keyword">this</span>.titular = titular;
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">double</span> <span class="hljs-title">getBalance</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.balance;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setBalance</span><span class="hljs-params">(<span class="hljs-keyword">double</span> balance)</span> </span>{
+                <span class="hljs-keyword">this</span>.balance = balance;
+            }   
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">double</span> <span class="hljs-title">getTipoInteres</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.tipoInteres;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setTipoInteres</span><span class="hljs-params">(<span class="hljs-keyword">double</span> tipoInteres)</span> </span>{
+                <span class="hljs-keyword">this</span>.tipoInteres = tipoInteres;
+            }
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CuentaCredito</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Cuenta</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CuentaDebito</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Cuenta</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>{
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        </code></pre>
+            <p>
+              Si observamos el DDL que ha generado Hibernate, nos encontramos
+              con lo siguiente:
+            </p>
+            <pre
+              class="hljs sql"
+            ><code class="SQL"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> Cuenta (
+               DTYPE <span class="hljs-built_in">varchar</span>(<span class="hljs-number">31</span>) <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                balance <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                tipoInteres <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                titular <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+                cargoPorDescubierto <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span>,
+                limiteCredito <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span>,
+                primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+            ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        </code></pre>
+            <p>
+              Ha añadido una columna, llamada DTYPE, que actúa de
+              <strong>discriminante</strong>
+              . Si observamos los valores insertados por el ejemplo:
+            </p>
+            <pre
+              class="hljs abnf"
+            ><code class="java">CuentaCredito cuentaCredito = new CuentaCredito()<span class="hljs-comment">;</span>
+        cuentaCredito.setTitular(<span class="hljs-string">"Luismi"</span>)<span class="hljs-comment">;</span>
+        cuentaCredito.setBalance(<span class="hljs-number">500.0</span>)<span class="hljs-comment">;</span>
+        cuentaCredito.setTipoInteres(<span class="hljs-number">0.20</span>)<span class="hljs-comment">;</span>
+        cuentaCredito.setLimiteCredito(<span class="hljs-number">600.0</span>)<span class="hljs-comment">;</span>
+        
+        
+        CuentaDebito cuentaDebito = new CuentaDebito()<span class="hljs-comment">;</span>
+        cuentaDebito.setTitular(<span class="hljs-string">"Luismi"</span>)<span class="hljs-comment">;</span>
+        cuentaDebito.setBalance(<span class="hljs-number">200.0</span>)<span class="hljs-comment">;</span>
+        cuentaCredito.setTipoInteres(<span class="hljs-number">0.10</span>)<span class="hljs-comment">;</span>
+        cuentaDebito.setCargoPorDescubierto(<span class="hljs-number">6.5</span>)<span class="hljs-comment">;</span>
+        
+        em.persist(cuentaCredito)<span class="hljs-comment">;</span>
+        em.persist(cuentaDebito)<span class="hljs-comment">;</span>
+        </code></pre>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-23/2afbfb2f-b0dd-4bfc-889e-b895cebb1718.JPG"
+                alt="Single Table"
+              />
+            </p>
+            <p>
+              En cada fila ha añadido como DTYPE el nombre de la clase entidad.
+              Este valor de discriminante se puede modificar mediante la
+              anotación
+              <code>@DiscriminatorValue</code>
+              .
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@DiscriminatorValue</span>(<span class="hljs-string">"CC"</span>)
+        public class CuentaCredito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@DiscriminatorValue</span>(<span class="hljs-string">"CD"</span>)
+        public class CuentaDebito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        </code></pre>
+            <h3 id="12.1.2-`joined-table`">
+              <a name="12.1.2-`joined-table`" href="#12.1.2-`joined-table`"></a>
+              12.1.2
+              <code>Joined Table</code>
+            </h3>
+            <p>
+              Este esquema de trabajo, también conocido como
+              <em>table per subclass</em>
+              , genera las siguientes tablas:
+            </p>
+            <ul>
+              <li>
+                Una tabla para la entidad
+                <em>base</em>
+                de la jerarquía. Tendrá todos los atributos de la clase base.
+              </li>
+              <li>
+                Una tabla para cada entidad
+                <em>extendida</em>
+                de la jerarquía. Tendrá una referencia a la entidad base, y los
+                <em>atributos propios</em>
+                .
+              </li>
+            </ul>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Inheritance</span>(strategy = InheritanceType.JOINED)
+        public class Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        public class CuentaCredito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        public class CuentaDebito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        </code></pre>
+            <p>
+              Esto genera un DDL en el que se generan 3 tablas, y 2 claves
+              externas.
+            </p>
+            <pre
+              class="hljs sql"
+            ><code class="SQL">    <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> Cuenta (
+               <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                balance <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                tipoInteres <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                titular <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+                primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+            ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        
+        
+            <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> CuentaCredito (
+               limiteCredito <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+            ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        
+            <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> CuentaDebito (
+               cargoPorDescubierto <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+                primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+            ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        
+            <span class="hljs-keyword">alter</span> <span class="hljs-keyword">table</span> CuentaCredito
+               <span class="hljs-keyword">add</span> <span class="hljs-keyword">constraint</span> FK6641o76fphgs98cbv18sd7htc
+               foreign <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+               <span class="hljs-keyword">references</span> Cuenta (<span class="hljs-keyword">id</span>)
+        
+            <span class="hljs-keyword">alter</span> <span class="hljs-keyword">table</span> CuentaDebito
+               <span class="hljs-keyword">add</span> <span class="hljs-keyword">constraint</span> FK2gigt3h95mq590key3xvkhqk0
+               foreign <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+               <span class="hljs-keyword">references</span> Cuenta (<span class="hljs-keyword">id</span>)
+        </code></pre>
+            <p>
+              A diferencia del esquema
+              <code>@MappedSuperclass</code>
+              , con este esquema si podríamos usar
+              <strong>consultas polimórficas</strong>
+              , pero debemos tener en cuenta que esto puede utilizar muchos
+              JOIN, lo cual puede penalizar el rendimiento de la base de datos.
+            </p>
+            <p>
+              Si queremos dar un nombre diferente a las claves externas, podemos
+              usar la anotación
+              <code>@PrimaryKeyJoinColumn(name = " ...")</code>
+              .
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Inheritance</span>(strategy = InheritanceType.JOINED)
+        public class Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@PrimaryKeyJoinColumn</span>(name = <span class="hljs-string">"account_id"</span>)
+        public class CuentaCredito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@PrimaryKeyJoinColumn</span>(name = <span class="hljs-string">"account_id"</span>)
+        public class CuentaDebito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        </code></pre>
+            <h3 id="12.1.2-`table-per-class`">
+              <a
+                name="12.1.2-`table-per-class`"
+                href="#12.1.2-`table-per-class`"
+              ></a>
+              12.1.2
+              <code>Table per class</code>
+            </h3>
+            <p>
+              La última opción es la de una tabla por clase. Cada entidad
+              <em>extendida</em>
+              tendrá los atributos de la clase
+              <em>base</em>
+              y los suyos propios (como en
+              <code>@MappedSuperclass</code>
+              ), pero también existirá una tabla para la clase
+              <em>base</em>
+              .
+            </p>
+            <p>
+              En caso de que queramos realizar consultas polimórficas, se
+              realizaría un UNION entre los resultados de las consultas a las
+              tablas.
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Inheritance</span>(strategy=InheritanceType.TABLE_PER_CLASS)
+        public class Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        public class CuentaCredito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        
+        
+        <span class="hljs-variable">@Entity</span>
+        public class CuentaDebito extends Cuenta implements Serializable {
+        
+          <span class="hljs-comment">//Igual que el ejemplo anterior</span>
+        
+        }
+        </code></pre>
+            <p>Esto generaría como DDL el siguente código:</p>
+            <pre
+              class="hljs sql"
+            ><code class="SQL"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> Cuenta (
+          <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          balance <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          tipoInteres <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          titular <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+          primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+        ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        
+        <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> CuentaCredito (
+          <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          balance <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          tipoInteres <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          titular <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+          limiteCredito <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+        ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        
+        
+        <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> CuentaDebito (
+          <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          balance <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          tipoInteres <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          titular <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+          cargoPorDescubierto <span class="hljs-keyword">double</span> <span class="hljs-keyword">precision</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+        ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        </code></pre>
+            <p>
+              Como podemos apreciar, en este caso no tenemos ninguna clave
+              externa.
+            </p>
+            <h2 id="12.2-campos-calculados-o-derivados">
+              <a
+                name="12.2-campos-calculados-o-derivados"
+                href="#12.2-campos-calculados-o-derivados"
+              ></a>
+              12.2 Campos calculados o derivados
+            </h2>
+            <h3 id="12.2.1-`@generated`">
+              <a name="12.2.1-`@generated`" href="#12.2.1-`@generated`"></a>
+              12.2.1
+              <code>@Generated</code>
+            </h3>
+            <p>
+              Un campo derivado o calculado es un campo que no se gestiona igual
+              que los demás: su valor viene a raíz de un cálculo a partir de,
+              normalmente, el resto de campos de la entidad, u otro valor
+              especial. Estos valores son generados por la base de datos (y no
+              por Java). Cuando Hibernate detecta una inserción o actualización,
+              realiza una (re)generación del valor del campo calculado.
+            </p>
+            <p>
+              Para poder anotar un campo como generado, usamos la anotación
+              <code>@Generated</code>
+              . Esta nos permite indicar cuando el campo será generado, a saber:
+            </p>
+            <ul>
+              <li>
+                INSERT: Será generado en la inserción, pero no en las sentencias
+                UPDATE posteriores.
+              </li>
+              <li>ALWAYS: En cualquier modificación (INSERT, UPDATE).</li>
+            </ul>
+            <p>
+              Para indicar este valor, usamos
+              <code>GenerationTime</code>
+              como en el ejemplo siguiente:
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="Java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@Table</span>(name=<span class="hljs-string">"ADVANCEDUSER"</span>)
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String email;
+        
+            <span class="hljs-keyword">private</span> String city;
+        
+            <span class="hljs-meta">@Generated</span>(value=GenerationTime.ALWAYS)
+            <span class="hljs-meta">@Column</span>(columnDefinition=
+                <span class="hljs-string">" varchar(512) AS (CONCAT(email,' (', city,')')) "</span>
+            )
+            <span class="hljs-keyword">private</span> String generated;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getEmail</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> email;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setEmail</span><span class="hljs-params">(String email)</span> </span>{
+                <span class="hljs-keyword">this</span>.email = email;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getCity</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> city;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setCity</span><span class="hljs-params">(String city)</span> </span>{
+                <span class="hljs-keyword">this</span>.city = city;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getGenerated</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.generated;
+            }
+        }
+        </code></pre>
+            <p>
+              Como de la generación de este campo se encarga la base de datos,
+              tenemos que indicar la forma en que lo hará al estilo SQL.
+              Mediante
+              <code>@Column(columnDefinition="...")</code>
+              le estamos indicando el tipo de dato y como hacer el cálculo.
+            </p>
+            <p>El DDL generado sería algo parecido a esto:</p>
+            <pre
+              class="hljs sql"
+            ><code class="SQL"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> ADVANCEDUSER (
+            <span class="hljs-keyword">id</span> <span class="hljs-built_in">bigint</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,
+          city <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+          email <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>),
+          presentation <span class="hljs-built_in">varchar</span>(<span class="hljs-number">512</span>) <span class="hljs-keyword">AS</span> (<span class="hljs-keyword">CONCAT</span>(email,<span class="hljs-string">' ('</span>, city,<span class="hljs-string">')'</span>)),
+          primary <span class="hljs-keyword">key</span> (<span class="hljs-keyword">id</span>)
+        ) <span class="hljs-keyword">engine</span>=<span class="hljs-keyword">InnoDB</span>
+        </code></pre>
+            <p>
+              Al indicar
+              <code>@Generated(value=GenerationTime.ALWAYS)</code>
+              este campo será actualizado por cada sentencia INSERT o UPDATE.
+            </p>
+            <h3 id="12.2.2-`@creationtimestamp`">
+              <a
+                name="12.2.2-`@creationtimestamp`"
+                href="#12.2.2-`@creationtimestamp`"
+              ></a>
+              12.2.2
+              <code>@CreationTimestamp</code>
+            </h3>
+            <p>
+              La anotación
+              <code>@CreationTimestamp</code>
+              nos permite indicar a Hibernate que en el atributo anotado con
+              esta anotación debe almacenarse la actual fecha y hora de la JVM
+              cuando la entidad sea almacenada.
+            </p>
+            <pre
+              class="hljs less"
+            ><code class="java"><span class="hljs-variable">@Entity</span>
+        <span class="hljs-variable">@Table</span>(name=<span class="hljs-string">"ADVANCEDUSER"</span>)
+        public class User {
+        
+            <span class="hljs-variable">@Id</span>
+            <span class="hljs-variable">@GeneratedValue</span>
+            private long id;
+        
+            <span class="hljs-comment">//Resto de atributos</span>
+        
+        
+            <span class="hljs-variable">@CreationTimestamp</span>
+            private Date createdDate;
+        
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">Date</span> <span class="hljs-selector-tag">getCreatedDate</span>() {
+                <span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">createdDate</span>;
+            }
+        
+        }
+        </code></pre>
+            <h3 id="12.2.3-`@columntransformer`">
+              <a
+                name="12.2.3-`@columntransformer`"
+                href="#12.2.3-`@columntransformer`"
+              ></a>
+              12.2.3
+              <code>@ColumnTransformer</code>
+            </h3>
+            <p>
+              Hibernate nos permite personalizar el código SQL que utiliza para
+              leer o almacenar los valores de algunas columnas. Por ejemplo, si
+              nuestro RDBMS tiene alguna función de encriptación o codificación,
+              la podemos invocar para almacenar una columna (por ejemplo, una
+              contraseña).
+            </p>
+            <pre
+              class="hljs kotlin"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-meta">@Table(name=<span class="hljs-meta-string">"ADVANCEDUSER"</span>)</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> </span>{
+        
+        
+            <span class="hljs-comment">//Resto de atributos</span>
+        
+            <span class="hljs-meta">@Column(name=<span class="hljs-meta-string">"pswd"</span>)</span>
+            <span class="hljs-meta">@ColumnTransformer(
+                    write= <span class="hljs-meta-string">" MD5(?) "</span>
+            )</span>
+            <span class="hljs-keyword">private</span> String password;
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-keyword">public</span> String getPassword() {
+                <span class="hljs-keyword">return</span> password;
+            }
+        
+            <span class="hljs-keyword">public</span> void setPassword(String password) {
+                <span class="hljs-keyword">this</span>.password = password;
+            }
+        }
+        </code></pre>
+            <p>
+              En este caso, cuando almacenemos la contraseña del usuario, lo
+              haremos en forma de cadena MD5; si alguien consulta la base de
+              datos por otra vía, no podrá saber cuál es nuestra contraseña (el
+              algoritmo MD5 no tiene función inversa conocida).
+            </p>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

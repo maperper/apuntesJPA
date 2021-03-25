@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <p>
+              La asociación Uno-a-muchos nos permite enlazar, en una asociación
+              padre/hijo, el lado
+              <em>padre</em>
+              con todos sus hijos. Para ello, en la clase debemos colocar una
+              colección de elementos hijos.
+            </p>
+            <p>
+              Si la asociación
+              <code>@OneToMany</code>
+              no tiene la correspondiente asociación
+              <code>@ManyToOne</code>
+              , decimos que es
+              <strong>unidireccional</strong>
+              . En caso de que sí exista, decimos que es
+              <strong>bidireccional</strong>
+              .
+            </p>
+            <h3 id="9.1.1-one-to-many-unidireccional">
+              <a
+                name="9.1.1-one-to-many-unidireccional"
+                href="#9.1.1-one-to-many-unidireccional"
+              ></a>
+              9.1.1 One-To-Many unidireccional
+            </h3>
+            <p>
+              Para representar esta asociación, añadimos en la clase padre un
+              listado de elementos del tipo hijo.
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-meta">@OneToMany</span>(cascade = CascadeType.ALL, orphanRemoval = <span class="hljs-keyword">true</span>)
+          <span class="hljs-keyword">private</span> List&lt;Phone&gt; phones = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">(String name)</span> </span>{
+                <span class="hljs-keyword">this</span>.name = name;
+            }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Phone&gt; <span class="hljs-title">getPhones</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Phone</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Phone</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+        
+        }
+        </code></pre>
+            <p>
+              Hibernate creará una tabla para cada entidad, y otra tabla para
+              asociar ambas, añadiendo una restricción de unicidad al
+              identificador del lado muchos. La anotación que define la
+              asociación es
+              <code>@OneToMany</code>
+              . Vamos a repasar algunos elementos del código:
+            </p>
+            <pre
+              class="hljs lasso"
+            ><code class="java">@OneToMany(cascade = CascadeType.<span class="hljs-literal">ALL</span>, orphanRemoval = <span class="hljs-literal">true</span>)
+        <span class="hljs-keyword">private</span> <span class="hljs-built_in">List</span>&lt;Phone&gt; phones = <span class="hljs-literal">new</span> ArrayList&lt;&gt;();
+        </code></pre>
+            <ul>
+              <li>
+                La lista es inicializada al instanciar el objeto, para poder
+                almacenar los elementos hijos.
+              </li>
+              <li>
+                La opción
+                <code>cascade = CascadeType.ALL</code>
+                indica que las operaciones (formalmente llamadas
+                <em>transiciones entre estados</em>
+                ) sobre el elemento padre se actualizarán hacia los hijos.
+              </li>
+              <li>
+                La opción
+                <code>orphanRemoval = true</code>
+                indica que una entidad
+                <code>Phone</code>
+                será borrada cuando se elimine su asociación con la instancia de
+                <code>Person</code>
+                .
+              </li>
+            </ul>
+            <p>
+              Para gestionar esta asociación
+              <em>unidireccional</em>
+              , debemos trabajar siempre con la lista de elementos que posea la
+              entidad padre.
+            </p>
+            <pre
+              class="hljs pony"
+            ><code class="java">        <span class="hljs-type">Person</span> person = <span class="hljs-function"><span class="hljs-keyword">new</span> <span class="hljs-title">Person</span>("<span class="hljs-type">Pepe</span>");
+                <span class="hljs-title">Phone</span> <span class="hljs-title">phone1</span> = <span class="hljs-title">new</span> <span class="hljs-title">Phone</span>("<span class="hljs-number">954000000</span>");
+                <span class="hljs-title">Phone</span> <span class="hljs-title">phone2</span> = <span class="hljs-title">new</span> <span class="hljs-title">Phone</span>("<span class="hljs-number">600000000</span>");
+        
+                <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>(phone1);
+                <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">add</span>(phone2);
+                <span class="hljs-title">em</span>.<span class="hljs-title">persist</span>(person);
+                <span class="hljs-title">em</span>.<span class="hljs-title">flush</span>();
+        
+                <span class="hljs-title">person</span>.<span class="hljs-title">getPhones</span>().<span class="hljs-title">remove</span>(phone1);
+        </span></code></pre>
+            <h3 id="9.1.2-one-to-many-bidireccional">
+              <a
+                name="9.1.2-one-to-many-bidireccional"
+                href="#9.1.2-one-to-many-bidireccional"
+              ></a>
+              9.1.2 One-To-Many bidireccional
+            </h3>
+            <p>
+              La asociación
+              <code>@OneToMany</code>
+              bidireccional necesita de una asociación
+              <code>@ManyToOne</code>
+              en el lado hijo. Aunque en los modelos estas asociaciones se
+              representan bidireccionalmente, esta está representada solamente
+              por una clave externa.
+            </p>
+            <p>
+              Toda asociación bidireccional debe tener un lado
+              <strong>propietario</strong>
+              (lado hijo). El otro lado vendrá referenciado mediante el atributo
+              <code>mappedBy</code>
+              .
+            </p>
+            <pre
+              class="hljs java"
+            ><code class="java"><span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Phone</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-keyword">private</span> String number;
+        
+            <span class="hljs-meta">@ManyToOne</span>
+            <span class="hljs-keyword">private</span> Person person;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Phone</span><span class="hljs-params">()</span> </span>{ }
+        
+            <span class="hljs-comment">//Resto de métodos</span>
+        
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">hashCode</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> Objects.hash(number);
+            }
+        
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">equals</span><span class="hljs-params">(Object o)</span> </span>{
+                <span class="hljs-keyword">if</span> ( <span class="hljs-keyword">this</span> == o ) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+                }
+                <span class="hljs-keyword">if</span> ( o == <span class="hljs-keyword">null</span> || getClass() != o.getClass() ) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+                }
+                Phone phone = (Phone) o;
+                <span class="hljs-keyword">return</span> Objects.equals( number, phone.number );
+            }
+        
+        
+        }
+        
+        
+        <span class="hljs-meta">@Entity</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+        
+            <span class="hljs-meta">@Id</span>
+            <span class="hljs-meta">@GeneratedValue</span>
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;
+        
+            <span class="hljs-meta">@OneToMany</span>(mappedBy = <span class="hljs-string">"person"</span>, cascade = CascadeType.ALL, orphanRemoval = <span class="hljs-keyword">true</span>)
+            <span class="hljs-keyword">private</span> List&lt;Phone&gt; phones = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        
+            <span class="hljs-keyword">private</span> String name;
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">()</span> </span>{
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Person</span><span class="hljs-params">(String name)</span> </span>{
+                <span class="hljs-keyword">this</span>.name = name;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> id;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> name;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setName</span><span class="hljs-params">(String name)</span> </span>{
+                <span class="hljs-keyword">this</span>.name = name;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Phone&gt; <span class="hljs-title">getPhones</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">return</span> phones;
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addPhone</span><span class="hljs-params">(Phone phone)</span> </span>{
+                phones.add(phone);
+                phone.setPerson(<span class="hljs-keyword">this</span>);
+            }
+        
+            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">removePhone</span><span class="hljs-params">(Phone phone)</span> </span>{
+                phones.remove(phone);
+                phone.setPerson(<span class="hljs-keyword">null</span>);
+            }
+        
+        }
+        </code></pre>
+            <blockquote>
+              <p>
+                @NaturalId es una anotación propia de Hibernate. Representa un
+                identificador único que, si bien no es el mejor candidato para
+                clave primaria, es conveniente indicárselo a Hibernate, ya que
+                lo puede usar para hacer más eficiente.
+              </p>
+            </blockquote>
+            <p>
+              Como la clase
+              <code>Phone</code>
+              hace uso de una columna
+              <code>@NaturalId</code>
+              (haciendo el número de teléfono único), los métodos
+              <code>equals()</code>
+              y
+              <code>hashCode()</code>
+              pueden hacer uso de esta propiedad, y reducir la lógica de
+              <code>removePhone()</code>
+              a llamar al método
+              <code>remove</code>
+              de Java Collection.
+            </p>
+            <p>Podemos destacar aquí la lógica de estos métodos:</p>
+            <pre
+              class="hljs cs"
+            ><code class="java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addPhone</span>(<span class="hljs-params">Phone phone</span>) </span>{
+            phones.<span class="hljs-keyword">add</span>(phone);
+            phone.setPerson(<span class="hljs-keyword">this</span>);
+        }
+        
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">removePhone</span>(<span class="hljs-params">Phone phone</span>) </span>{
+            phones.<span class="hljs-keyword">remove</span>(phone);
+            phone.setPerson(<span class="hljs-literal">null</span>);
+        }
+        </code></pre>
+            <p>
+              El primero, realiza la asociación de un teléfono una persona: se
+              añade el teléfono a la lista de teléfonos de la persona, y se
+              asigna la persona como propietaria del teléfono.
+            </p>
+            <p>
+              El segundo, realiza la operación inversa, sacando el teléfono de
+              la lista de teléfonos de la persona, y asignando como nulo la
+              persona que es
+              <em>dueña</em>
+              del teléfono.
+            </p>
+            <pre
+              class="hljs abnf"
+            ><code class="java">        Person person = new Person(<span class="hljs-string">"Pepe"</span>)<span class="hljs-comment">;</span>
+                Phone phone1 = new Phone(<span class="hljs-string">"954000000"</span>)<span class="hljs-comment">;</span>
+                Phone phone2 = new Phone(<span class="hljs-string">"600000000"</span>)<span class="hljs-comment">;</span>
+        
+                person.addPhone(phone1)<span class="hljs-comment">;</span>
+                person.addPhone(phone2)<span class="hljs-comment">;</span>
+                em.persist(person)<span class="hljs-comment">;</span>
+                em.flush()<span class="hljs-comment">;</span>
+        
+                person.removePhone(phone1)<span class="hljs-comment">;</span>
+        </code></pre>
+            <p>
+              La asociación bidireccional es más eficiente gestionando el estado
+              de persistencia de la asociación. La eliminación de un elemento
+              solo requiere de una sentencia UPDATE (poniendo a
+              <code>NULL</code>
+              la clave externa); además, si el ciclo de vida de la clase
+              <em>hija</em>
+              está enmarcado dentro del de su clase
+              <em>padre</em>
+              (es decir, que no puede existir sin ella) podemos anotar la
+              asociación con el atributo
+              <code>orphanRemoval</code>
+              , de forma que al desasociar un hijo, automáticamente se eliminará
+              la fila asociada.
+            </p>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <section class="lesson d-flex justify-content-center">
+        <div class="p-3 w-100">
+          <article id="post">
+            <p>
+              En el origen de los ORMs, no existía la posibilidad, como hemos
+              visto en las lecciones anteriores, de mapear las clases de nuestro
+              modelo mediante anotaciones. Esta tarea se realizaba mediante
+              descriptores de ficheros XML. Estos deben incluir toda la
+              información sobre cómo se llamará la tabla, los atributos que
+              incluye, el atributo identificador. Hibernate tiene, de forma
+              nativa, su tipología de ficheros XML, y JPA tiene otro. Veamos una
+              introducción a ambos.
+            </p>
+            <h2 id="7.2-mapeo-con-ficheros-xml-hibernate-(hbm.xml)">
+              <a
+                name="7.2-mapeo-con-ficheros-xml-hibernate-(hbm.xml)"
+                href="#7.2-mapeo-con-ficheros-xml-hibernate-(hbm.xml)"
+              ></a>
+              7.2 Mapeo con ficheros XML Hibernate (hbm.xml)
+            </h2>
+            <p>
+              Cuando utilizamos XML para mapear nuestras clases debemos crear
+              (normalmente) un fichero XML por cada clase que queramos mapear.
+              Este fichero estará en el mismo paquete de la clase a persistir, o
+              bien junto al fichero hibernate.cfg.xml.
+            </p>
+            <p>
+              Las Hibernate (JBoss) Tools que instalamos en lecciones anteriores
+              nos facilitarán el trabajo. Tomaremos como punto de partida una
+              copia del proyecto de ejemplo del
+              <strong>Primer proyecto</strong>
+              . La clase a persistir sería la siguiente:
+            </p>
+            <pre class="hljs cpp"><code class="java">
+            <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> {</span>
+            
+                <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> id;
+            
+                <span class="hljs-keyword">private</span> String userName;
+            
+                <span class="hljs-keyword">private</span> String userMessage;
+            
+                <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>{
+                    <span class="hljs-keyword">return</span> id;
+                }
+            
+                <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setId</span><span class="hljs-params">(<span class="hljs-keyword">int</span> id)</span> </span>{
+                    <span class="hljs-keyword">this</span>.id = id;
+                }
+            
+                <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getUserName</span><span class="hljs-params">()</span> </span>{
+                    <span class="hljs-keyword">return</span> userName;
+                }
+            
+                <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setUserName</span><span class="hljs-params">(String userName)</span> </span>{
+                    <span class="hljs-keyword">this</span>.userName = userName;
+                }
+            
+                <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getUserMessage</span><span class="hljs-params">()</span> </span>{
+                    <span class="hljs-keyword">return</span> userMessage;
+                }
+            
+                <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setUserMessage</span><span class="hljs-params">(String userMessage)</span> </span>{
+                    <span class="hljs-keyword">this</span>.userMessage = userMessage;
+                }
+            
+            }
+            </code></pre>
+            <p>
+              Si ahora pulsamos con el botón derecho sobre el proyecto &gt;
+              <em>New</em>
+              &gt;
+              <em>Others</em>
+              &gt;
+              <em>Hibernate</em>
+              &gt;
+              <em>
+                Hibernate XML Mapping file
+                <br />
+                (hbm.xml)
+              </em>
+              .
+            </p>
+            <p>
+              Agregamos la clase
+              <code>User</code>
+              .
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/3ce6f854-0f97-4572-ac9b-83364d147631.JPG"
+                alt="Generación del fichero hbm.xml"
+              />
+            </p>
+            <p>Y si queremos podemos pulsar sobre finalizar.</p>
+            <p>
+              Por defecto, eclipse genera el fichero junto con el
+              <code>.java</code>
+              . Nosotros lo moveremos junto con el fichero
+              <code>hibernate.cfg.xml</code>
+              .
+            </p>
+            <p>
+              Si consultamos el fichero, Hiberante se ha encargado (por
+              nosotros) de generar el esqueleto del fichero XML.
+            </p>
+            <pre
+              class="hljs applescript"
+            ><code class="xml">&lt;hibernate-mapping&gt;
+                &lt;<span class="hljs-built_in">class</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"com.openwebinars.hibernate.hibernatexml.User"</span> table=<span class="hljs-string">"USER"</span>&gt;
+                    &lt;<span class="hljs-built_in">id</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"id"</span> type=<span class="hljs-string">"int"</span>&gt;
+                        &lt;column <span class="hljs-built_in">name</span>=<span class="hljs-string">"ID"</span> /&gt;
+                        &lt;generator <span class="hljs-built_in">class</span>=<span class="hljs-string">"assigned"</span> /&gt;
+                    &lt;/<span class="hljs-built_in">id</span>&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"userName"</span> type=<span class="hljs-string">"java.lang.String"</span>&gt;
+                        &lt;column <span class="hljs-built_in">name</span>=<span class="hljs-string">"USERNAME"</span> /&gt;
+                    &lt;/<span class="hljs-keyword">property</span>&gt;
+                    &lt;<span class="hljs-keyword">property</span> <span class="hljs-built_in">name</span>=<span class="hljs-string">"userMessage"</span> type=<span class="hljs-string">"java.lang.String"</span>&gt;
+                        &lt;column <span class="hljs-built_in">name</span>=<span class="hljs-string">"USERMESSAGE"</span> /&gt;
+                    &lt;/<span class="hljs-keyword">property</span>&gt;
+                &lt;/<span class="hljs-built_in">class</span>&gt;
+            &lt;/hibernate-mapping&gt;
+            </code></pre>
+            <p>
+              En el fichero de configuración de hibernate, añadimos un elemento
+              <code>&lt;mapping resource="..." /&gt;</code>
+              , donde el valor del atributo será la ruta hacia el fichero.
+            </p>
+            <h2 id="7.3-mapeo-con-ficheros-xml-jpa-(orm.xml)">
+              <a
+                name="7.3-mapeo-con-ficheros-xml-jpa-(orm.xml)"
+                href="#7.3-mapeo-con-ficheros-xml-jpa-(orm.xml)"
+              ></a>
+              7.3 Mapeo con ficheros XML JPA (orm.xml)
+            </h2>
+            <p>
+              JPA especifica un mecanismo ligeramente diferente para realizar el
+              mapeo de las entidades mediante XML.
+            </p>
+            <p>
+              Nos basaremos en el proyecto de ejemplo Primer proyecto JPA. En
+              este caso, podemos añadir el fichero
+              <code>orm.xml</code>
+              a través del asistente de eclipse. Pulsamos sobre el proyecto con
+              el botón derecho &gt;
+              <em>New</em>
+              &gt;
+              <em>JPA ORM Mapping file</em>
+              , y lo situamos junto al fichero de la unidad de persistencia
+              (carpeta META-INF).
+            </p>
+            <p>
+              Antes de continuar, nos vamos a la unidad de persistencia, y
+              añadimos el fichero
+              <code>orm.xml</code>
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/2ff59653-c034-406c-8c17-428db0889789.JPG"
+                alt="Añadir a la unidad de persistencia el fichero orm.xml"
+              />
+            </p>
+            <p>
+              Si pasamos a editar el fichero de mapeo, tenemos dos
+              posibilidades:
+            </p>
+            <ul>
+              <li>
+                Conocer las etiquetas XML necesarias, con sus atributos y su
+                estructura.
+              </li>
+              <li>
+                Aprovecharnos de un pequeño ayudante que nos propone eclipse a
+                través del facet JPA.
+              </li>
+            </ul>
+            <p>
+              Al editar el fichero
+              <code>orm.xml</code>
+              nos debería aparecer a la derecha una pequeña ventana llamada
+              <strong>JPA Structure</strong>
+              (si no aparece, la podeos visualizar a través de
+              <em>Window</em>
+              &gt;
+              <em>Show view</em>
+              ).
+            </p>
+            <p>
+              A través de él, podemos ir añadiendo las etiquetas necesarias para
+              mapear la entidad y sus atributos.
+            </p>
+            <p style="margin-left: 0px; margin-right: 0px;">
+              <img
+                class="img-responsive center-block"
+                src="https://dc722jrlp2zu8.cloudfront.net/media/django-summernote/2017-05-22/6add481c-f76b-4dea-b431-2ad989f9b126.jpg"
+                alt="Asistente de JPA"
+              />
+            </p>
+            <p>
+              La versión (equivalente al ejemplo de hibernate) del fichero sería
+              la siguiente:
+            </p>
+            <pre
+              class="hljs xml"
+            ><code class="xml"><span class="php"><span class="hljs-meta">&lt;?</span>xml version=<span class="hljs-string">"1.0"</span> encoding=<span class="hljs-string">"UTF-8"</span><span class="hljs-meta">?&gt;</span></span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">entity-mappings</span> <span class="hljs-attr">version</span>=<span class="hljs-string">"2.1"</span>
+                <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://xmlns.jcp.org/xml/ns/persistence/orm"</span> <span class="hljs-attr">xmlns:xsi</span>=<span class="hljs-string">"http://www.w3.org/2001/XMLSchema-instance"</span>
+                <span class="hljs-attr">xsi:schemaLocation</span>=<span class="hljs-string">"http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">entity</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"com.openwebinars.hibernate.hibernatejpaxml.User"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"USERHBNXML"</span> /&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">attributes</span>&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">id</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"id"</span>&gt;</span>
+                        <span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">basic</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"userName"</span>&gt;</span>
+                        <span class="hljs-tag">&lt;/<span class="hljs-name">basic</span>&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">basic</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"userMessage"</span>&gt;</span>
+                        <span class="hljs-tag">&lt;/<span class="hljs-name">basic</span>&gt;</span>
+                    <span class="hljs-tag">&lt;/<span class="hljs-name">attributes</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-name">entity</span>&gt;</span>            
+            <span class="hljs-tag">&lt;/<span class="hljs-name">entity-mappings</span>&gt;</span>
+            </code></pre>
+          </article>
+          <!---->
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
